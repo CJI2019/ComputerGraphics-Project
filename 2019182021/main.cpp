@@ -85,6 +85,7 @@ int main(int argc, char** argv)
 	mountain::rNum = 25;
 	mountain::cNum = 25;
 	mapFloor.set_floor(mountain::rNum, mountain::cNum);
+	std::cout << 'z';
 
 	mountainMaze.initialize((mountain::rNum + 1) / 2, (mountain::cNum + 1) / 2);
 	while(!maze::completeGenerate)
