@@ -34,7 +34,8 @@ public:
 	{
 		std::uniform_int_distribution<int> dis(50, 300);
 		std::uniform_int_distribution<int> dis_speed(1, 10);
-		max_height = static_cast<GLfloat>(dis(gen));
+		//max_height = static_cast<GLfloat>(dis(gen));
+		max_height = 10;
 		speed = static_cast<GLfloat>(dis_speed(gen)) * 0.01;
 		now_height = 0.0f;
 		state_up = true;

@@ -82,33 +82,13 @@ int main(int argc, char** argv)
 	glewExperimental = GL_TRUE;
 	glewInit();
 
-	std::cout << "가로입력(5~25):";
-	std::cin >> mountain::rNum;
-	std::cout << "세로입력(5~25):";
-	std::cin >> mountain::cNum;
-	if (mountain::rNum < 5 || mountain::rNum > 25)
-		mountain::rNum = 5;
-	if (mountain::cNum < 5 || mountain::cNum > 25)
-		mountain::cNum = 5;
+	mountain::rNum = 25;
+	mountain::cNum = 25;
 	mapFloor.set_floor(mountain::rNum, mountain::cNum);
 
 	mountainMaze.initialize((mountain::rNum + 1) / 2, (mountain::cNum + 1) / 2);
 	while(!maze::completeGenerate)
 		mountainMaze.generator();
-
-	std::cout << "o/p: 직각투영/원근투영" << std::endl;
-	std::cout << "l: 미니맵 직각투영 on/off" << std::endl;
-	std::cout << "z/Z: 원근투영시 3인칭 카메라 z축이동" << std::endl;
-	std::cout << "m/M: 육면체 움직임/멈춘다" << std::endl;
-	std::cout << "y/Y: 3인칭 바깥 카메라가 y축 기준으로 회전" << std::endl;
-	std::cout << "r: 미로가 생성된다." << std::endl;
-	std::cout << "v: 육면체가 움직인다/ 움직임을 멈추고 일정높이만큼 낮아진다" << std::endl;
-	std::cout << "s: 객체가 나타난다" << std::endl;
-	std::cout << "방향키: 객체가 이동한다" << std::endl;
-	std::cout << "+/-: 육면체의 움직이는 속도 증가/감소" << std::endl;
-	std::cout << "1/3: 1인칭/3인칭" << std::endl;
-	std::cout << "c: 모든값 초기화" << std::endl;
-	std::cout << "q: 종료" << std::endl;
 
 	mountain::length = mapFloor.get_length();
 	mountain::width = mapFloor.get_width();
@@ -124,7 +104,8 @@ int main(int argc, char** argv)
 
 	mainObject = new move_obj();
 
-
+	set_maze(mountainMaze, mountain_list);
+	mainObject->reveal();
 
 	//세이더 읽어와서 세이더 프로그램 만들기
 	shaderID = make_shaderProgram();	//세이더 프로그램 만들기
@@ -192,27 +173,16 @@ GLvoid drawScene()
 	glBindVertexArray(vao_floor);
 	glDrawArrays(GL_TRIANGLES, 0, mapFloor.get_vertex().size() / 3);
 		
-	if (STATE::makeMaze)
-	{
-		for (int i = 0; i < mountain::cNum; ++i)
-		{
-			for (int j = 0; j < mountain::rNum; ++j)
-				mountain_list[i][j].drawMaze(modelLocation);
-		}
-	}
-	else
-	{
-		for (int i = 0; i < mountain::cNum; ++i)
-		{
-			for (int j = 0; j < mountain::rNum; ++j)
-				mountain_list[i][j].draw(modelLocation);
-		}
-	}
 
-	if (mainObject->get_state())
+	for (int i = 0; i < mountain::cNum; ++i)
 	{
-		mainObject->draw(modelLocation);
+		for (int j = 0; j < mountain::rNum; ++j)
+			mountain_list[i][j].drawMaze(modelLocation);
 	}
+	
+
+	mainObject->draw(modelLocation);
+
 
 	glViewport(800, 500, 200, 200);
 	glDisable(GL_DEPTH_TEST);
@@ -227,27 +197,23 @@ GLvoid drawScene()
 	glBindVertexArray(vao_floor);
 	glDrawArrays(GL_TRIANGLES, 0, mapFloor.get_vertex().size() / 3);
 
-	if (mainObject->get_state())
-	{
-		mainObject->draw(modelLocation);
-	}
 
-	if (STATE::makeMaze)
-	{
-		for (int i = 0; i < mountain::cNum; ++i)
-		{
-			for (int j = 0; j < mountain::rNum; ++j)
-				mountain_list[i][j].drawMaze(modelLocation);
-		}
-	}
-	else
-	{
-		for (int i = 0; i < mountain::cNum; ++i)
-		{
-			for (int j = 0; j < mountain::rNum; ++j)
-				mountain_list[i][j].draw(modelLocation);
-		}
-	}
+	mainObject->draw(modelLocation);
+
+
+
+	for (int i = 0; i < mountain::cNum; ++i)
+		for (int j = 0; j < mountain::rNum; ++j)
+			mountain_list[i][j].drawMaze(modelLocation);
+
+	//else
+	//{
+	//	for (int i = 0; i < mountain::cNum; ++i)
+	//	{
+	//		for (int j = 0; j < mountain::rNum; ++j)
+	//			mountain_list[i][j].draw(modelLocation);
+	//	}
+	//}
 
 	glutSwapBuffers();
 }
@@ -294,172 +260,6 @@ GLvoid KeyEvent(unsigned char key, int x, int y)
 	{
 		delete mainObject;
 		glutExit();
-	}
-	else if (key == 'y')
-	{
-		cameraAngle += 10.0f;
-	}
-	else if (key == 'Y')
-	{
-		cameraAngle -= 10.0f;
-	}
-	else if (key == 'z')
-	{
-		if (!STATE::perspective)
-			return;
-		camera_eye.z += 10.0f;
-		camera_look.z += 10.0f;
-	}
-	else if (key == 'Z')
-	{
-		if (!STATE::perspective)
-			return;
-		camera_eye.z -= 10.0f;
-		camera_look.z -= 10.0f;
-	}
-	else if (key == 'm')
-	{
-		STATE::mountain_animation = true;
-	}
-	else if (key == 'M')
-	{
-		STATE::mountain_animation = false;
-	}
-	else if (key == 'o')
-	{
-		STATE::perspective = false;
-		projection = glm::mat4(1.0f);
-		projection = glm::ortho(-1000.0f, 1000.0f, -1000.0f, 1000.0f, 50.0f, 3000.0f);
-	}
-	else if (key == 'p')
-	{
-		STATE::perspective = true;
-		projection = glm::mat4(1.0f);
-		projection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 3000.0f);
-	}
-	else if (key == 'r' && mountain::initAni)
-	{
-		if (STATE::makeMaze)
-			return;
-		STATE::makeMaze = true;
-		set_maze(mountainMaze, mountain_list);
-	}
-	else if (key == 'v')
-	{
-		STATE::mountain_animation = STATE::mountain_animation ? false : true;
-		if (STATE::mountain_animation == false)
-		{
-			for (int i = 0; i < mountain::cNum; ++i)
-				for (int j = 0; j < mountain::rNum; ++j)
-					mountain_list[i][j].set_height();
-		}
-	}
-	else if (key == '+')
-	{
-		for (int i = 0; i < mountain::cNum; ++i)
-			for (int j = 0; j < mountain::rNum; ++j)
-				if(mountain_list[i][j].get_speed() < 1.0f)
-					mountain_list[i][j].set_speed(0.01f);
-	}
-	else if (key == '-')
-	{
-		for (int i = 0; i < mountain::cNum; ++i)
-			for (int j = 0; j < mountain::rNum; ++j)
-				if (mountain_list[i][j].get_speed() > 0.0f)
-					mountain_list[i][j].set_speed(-0.01f);
-				
-	}
-	else if (key == 's' && STATE::makeMaze)
-	{
-
-		mainObject->reveal();
-	}
-	else if (key == '3')
-	{
-		STATE::quarter_view = true;
-	}
-	else if (key == '1')
-	{
-		STATE::quarter_view = false;
-	}
-	else if (key == 'l')
-	{
-		STATE::minimap_perspective = STATE::minimap_perspective ? false : true;
-	}
-	else if (key == 'c')
-	{
-		delete mainObject;
-		mountainMaze.ResetMaze();
-		mountain_list.clear();
-		mapFloor.reset();
-		std::cout << std::endl;
-		std::cout << "가로입력(5~25):";
-		std::cin >> mountain::rNum;
-		std::cout << "세로입력(5~25):";
-		std::cin >> mountain::cNum;
-		if (mountain::rNum < 5 || mountain::rNum > 25)
-			mountain::rNum = 5;
-		if (mountain::cNum < 5 || mountain::cNum > 25)
-			mountain::cNum = 5;
-		mapFloor.set_floor(mountain::rNum, mountain::cNum);
-
-		mountainMaze.initialize((mountain::rNum + 1) / 2, (mountain::cNum + 1) / 2);
-		while (!maze::completeGenerate)
-			mountainMaze.generator();
-
-		std::cout << "o/p: 직각투영/원근투영" << std::endl;
-		std::cout << "l: 미니맵 직각투영 on/off" << std::endl;
-		std::cout << "z/Z: 원근투영시 3인칭 카메라 z축이동" << std::endl;
-		std::cout << "m/M: 육면체 움직임/멈춘다" << std::endl;
-		std::cout << "y/Y: 3인칭 바깥 카메라가 y축 기준으로 회전" << std::endl;
-		std::cout << "r: 미로가 생성된다." << std::endl;
-		std::cout << "v: 육면체가 움직인다/ 움직임을 멈추고 일정높이만큼 낮아진다" << std::endl;
-		std::cout << "s: 객체가 나타난다" << std::endl;
-		std::cout << "방향키: 객체가 이동한다" << std::endl;
-		std::cout << "+/-: 육면체의 움직이는 속도 증가/감소" << std::endl;
-		std::cout << "1/3: 1인칭/3인칭" << std::endl;
-		std::cout << "c: 모든값 초기화" << std::endl;
-		std::cout << "q: 종료" << std::endl;
-
-		mountain::length = mapFloor.get_length();
-		mountain::width = mapFloor.get_width();
-
-		mountain_list = std::vector<std::vector<mountain>>(mountain::cNum);
-		for (int i = 0; i < mountain::cNum; ++i)
-		{
-			for (int j = 0; j < mountain::rNum; ++j)
-			{
-				mountain_list[i].push_back(mountain(j, i));
-			}
-		}
-
-		mainObject = new move_obj();
-
-		STATE::perspective = true;;
-		STATE::mountain_animation = false;
-		STATE::makeMaze = false;
-		STATE::quarter_view = true;
-		STATE::dir[0] = false;
-		STATE::dir[1] = false;
-		STATE::dir[2] = false;
-		STATE::dir[3] = false;
-		mountain::initAni = false;
-
-		camera = glm::mat4(1.0f);
-		camera_eye = glm::vec3(700.0f, 800.0f, 700.0f);
-		camera_look = glm::vec3(0.0f, 0.0f, 0.0f);
-
-		cameraAngle = 0.0f;
-
-		topViewCamera = glm::mat4(1.0f);
-		tVCamra_eye = glm::vec3(0.0f, 1000.0f, 0.0f);
-
-		camera = glm::lookAt(camera_eye, camera_look, glm::vec3(0.0f, 1.0f, 0.0f));
-		topViewCamera = glm::lookAt(tVCamra_eye, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
-
-		projection = glm::mat4(1.0f);
-		projection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 3000.0f);
-
 	}
 }
 
