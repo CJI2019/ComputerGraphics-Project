@@ -4,6 +4,7 @@
 #include "my_maze.h"
 //#include "move_obj.h"
 
+
 class mountain
 {
 private:
@@ -86,6 +87,8 @@ public:
 	friend GLvoid set_maze(const maze& completeMaze, std::vector<std::vector<mountain>>& mountainList);
 	GLvoid set_height();
 };
+
+GLvoid open_random_maze(std::vector<std::vector<mountain>>& mountainList, const int& i, const int& j, const int& wall_num);
 
 GLfloat mountain::width = 0.0f;
 GLfloat mountain::length = 0.0f;
@@ -211,8 +214,40 @@ GLvoid set_maze(const maze& completeMaze, std::vector<std::vector<mountain>>& mo
 		int random_loop = dis(gen);
 		for (int i = 0; i < random_loop; ++i)
 			mountainList[dis(gen)][mountain::rNum - 1].maze_state = true;
-
 	}
+
+	for (int i = 0; i < mountain::cNum; ++i)
+	{
+		for (int j = 0; j < mountain::rNum; ++j)
+		{
+			int wall_num = 0;
+			if (i == 0)
+				wall_num++;
+			else if (!mountainList[i - 1][j].maze_state)
+				wall_num++;
+
+			if (i == mountain::cNum - 1)
+				wall_num++;
+			else if (!mountainList[i + 1][j].maze_state)
+				wall_num++;
+
+			if (j == 0)
+				wall_num++;
+			else if (!mountainList[i][j - 1].maze_state)
+				wall_num++;
+
+			if (j == mountain::rNum - 1)
+				wall_num++;
+			else if (!mountainList[i][j + 1].maze_state)
+				wall_num++;
+
+			if (wall_num >= 3)
+			{
+				open_random_maze(mountainList, i, j, wall_num);
+			}
+		}
+	}
+
 }
 
 GLvoid mountain::set_height()
@@ -226,3 +261,53 @@ GLvoid mountain::set_height()
 	}
 }
 
+GLvoid open_random_maze(std::vector<std::vector<mountain>>& mountainList, const int& i, const int& j, const int& wall_num)
+{
+	std::uniform_int_distribution<int> dis(0, wall_num);
+
+	GLboolean complete_open = false;
+
+	while (!complete_open)
+	{
+		switch (dis(gen))
+		{
+		case 0: //top 연다
+			if (i == 0)
+				break;
+			else if (!mountainList[i - 1][j].maze_state)
+			{
+				mountainList[i - 1][j].maze_state = true;
+				complete_open = true;
+			}
+			break;
+		case 1: //left 연다
+			if (j == 0)
+				break;
+			else if (!mountainList[i][j - 1].maze_state)
+			{
+				mountainList[i][j - 1].maze_state = true;
+				complete_open = true;
+			}			break;
+		case 2: // bottom 연다
+			if (i == mountain::cNum - 1)
+				break;
+			else if (!mountainList[i + 1][j].maze_state)
+			{
+				mountainList[i + 1][j].maze_state = true;
+				complete_open = true;
+			}			break;
+		case 3: // right 연다
+			if (i == mountain::rNum - 1)
+				break;
+			else if (!mountainList[i][j + 1].maze_state)
+			{
+				mountainList[i][j + 1].maze_state = true;
+				complete_open = true;
+			}		
+			break;
+		default:
+			break;
+		}
+	}
+	
+}
