@@ -29,16 +29,6 @@ GLfloat rColor = 0.0f, gColor = 0.0f, bColor = 0.0f;
 GLfloat tv_rColor = 1.0f, tv_gColor = 1.0f, tv_bColor = 1.0f;
 
 
-namespace STATE
-{
-	GLboolean perspective = true;
-	GLboolean mountain_animation = false;
-	GLboolean makeMaze = false;
-	GLboolean dir[4] = { false, false, false, false };
-	GLboolean quarter_view = true;
-	GLboolean minimap_perspective = false;
-}
-
 
 unsigned int modelLocation;
 unsigned int viewLocation;

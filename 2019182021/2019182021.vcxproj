@@ -27,6 +27,7 @@
     <ClInclude Include="make_Shader.h" />
     <ClInclude Include="mountain.h" />
     <ClInclude Include="read_Obj.h" />
+    <ClInclude Include="state.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="fragment.glsl" />
