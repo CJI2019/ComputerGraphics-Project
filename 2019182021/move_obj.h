@@ -63,7 +63,7 @@ public:
 
 
 	}
-	GLvoid set_dir(int key);
+
 	GLvoid setDirection(int key, GLboolean down);
 	GLvoid set_speed(const GLfloat& delta);
 
@@ -82,15 +82,6 @@ public:
 
 	GLvoid change_camera_look(const glm::vec3 lookvector);
 };
-
-//GLvoid move_obj::set_dir(int key)
-//{
-//	if (key == GLUT_KEY_LEFT || key == GLUT_KEY_RIGHT)
-//		//direction.x = 0;
-//
-//	if (key == GLUT_KEY_UP || (key == GLUT_KEY_DOWN))
-//		//direction.y = 0;
-//}
 
 GLvoid move_obj::setDirection(int key, GLboolean down)
 {
