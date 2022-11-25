@@ -2,6 +2,7 @@
 #include "make_Shader.h"
 #include "cuboid.h"
 #include "mountain.h"
+#include "state.h"
 
 class move_obj
 {
@@ -19,7 +20,7 @@ private:
 	GLboolean state;
 
 	glm::vec3 look;
-	glm::vec2 direction;
+	glm::vec3 direction[4];
 
 	glm::mat4 camera;
 	glm::vec3 camera_eye;
@@ -30,9 +31,9 @@ public:
 	{
 		pos = glm::vec3(-500.0f + mountain::width / 2, 10.0f, -500.0f + mountain::length / 2);
 		oldPos = pos;
-		speed = 10.0f;
+		speed = 1.0f;
 		state = false;
-		direction = glm::vec2(10.0f, 10.0f);
+		//direction[0] = { glm::vec3(0.0f, 0.0f, 0.0f) };
 		look = glm::vec3(0.0f, 0.0f, 1.0f);
 
 		vertex = std::vector<GLfloat>(108);
@@ -70,62 +71,65 @@ public:
 	GLfloat get_speed() const { return speed; }
 	glm::vec3 get_look() const { return look; }
 	glm::mat4 get_camera() const { return camera; }
-	glm::vec2 get_dir() const { return direction; }
+	//glm::vec3 get_dir() const { return direction; }
 
 
 	GLvoid draw(unsigned int& modelLocation);
 	GLvoid reveal();
 	GLvoid move(const std::vector<std::vector<mountain>>& mountainList);
 	GLboolean collide(const mountain& mountain_obj);
+
+
+	GLvoid change_camera_look(const glm::vec3 lookvector);
 };
 
-GLvoid move_obj::set_dir(int key)
-{
-	if (key == GLUT_KEY_LEFT || key == GLUT_KEY_RIGHT)
-		direction.x = 0;
-
-	if (key == GLUT_KEY_UP || (key == GLUT_KEY_DOWN))
-		direction.y = 0;
-}
+//GLvoid move_obj::set_dir(int key)
+//{
+//	if (key == GLUT_KEY_LEFT || key == GLUT_KEY_RIGHT)
+//		//direction.x = 0;
+//
+//	if (key == GLUT_KEY_UP || (key == GLUT_KEY_DOWN))
+//		//direction.y = 0;
+//}
 
 GLvoid move_obj::setDirection(int key, GLboolean down)
 {
 	if (down)
 	{
-		if (key == GLUT_KEY_LEFT)
+		if (key == 'a')
 		{
-			direction.x -= 1;
+			STATE::dir[0] = true;
 		}
-		else if (key == GLUT_KEY_RIGHT)
+		else if (key == 'd')
 		{
-			direction.x += 1;
+			STATE::dir[1] = true;
 		}
-		else if (key == GLUT_KEY_UP)
+		else if (key == 'w')
 		{
-			direction.y -= 1;
+			STATE::dir[2] = true;
 		}
-		else if (key == GLUT_KEY_DOWN)
+		else if (key == 's')
 		{
-			direction.y += 1;
+			STATE::dir[3] = true;
 		}
 	}
 	else
 	{
-		if (key == GLUT_KEY_LEFT)
+		if (key == 'a')
 		{
-			direction.x += 1;
+			STATE::dir[0] = false;
 		}
-		else if (key == GLUT_KEY_RIGHT)
+		else if (key == 'd')
 		{
-			direction.x -= 1;
+			STATE::dir[1] = false;
 		}
-		else if (key == GLUT_KEY_UP)
+		else if (key == 'w')
 		{
-			direction.y += 1;
+			STATE::dir[2] = false;
 		}
-		else if (key == GLUT_KEY_DOWN)
+		else if (key == 's')
 		{
-			direction.y -= 1;
+			STATE::dir[3] = false;
 		}
 	}
 }
@@ -150,11 +154,18 @@ GLvoid move_obj::reveal()
 
 GLvoid move_obj::move(const std::vector<std::vector<mountain>>& mountainList)
 {
+	direction[0] = -(glm::normalize(glm::cross(look, glm::vec3(0.0f, 1.0f, 0.0f)))); //left
+	direction[1] = glm::normalize(glm::cross(look, glm::vec3(0.0f, 1.0f, 0.0f))); //right
+	direction[2] = look; //front
+	direction[3] = -look; //back
+
 	oldPos = pos;
-	if(direction.x != 10.0f)
-		pos.x += direction.x * speed;
-	if(direction.y != 10.0f)
-		pos.z += direction.y * speed;
+	for (int i = 0; i < 4; ++i) {
+		if (STATE::dir[i]) {
+			pos.x += direction[i].x * speed;
+			pos.z += direction[i].z * speed;
+		}
+	}
 
 	for (int i = 0; i < mountain::cNum; ++i)
 	{
@@ -171,18 +182,9 @@ GLvoid move_obj::move(const std::vector<std::vector<mountain>>& mountainList)
 	camera_eye = glm::vec3(pos.x, pos.y, pos.z);
 
 	glm::vec3 temp(0.0f, 0.0f, 1.0f);
-	if (oldPos.x != pos.x || oldPos.z != pos.z)
-	{	
-		look.x = pos.x - oldPos.x;
-		look.z = pos.z - oldPos.z;
-	}
-	look = glm::normalize(look);
-	GLfloat cos_rotate = glm::dot(glm::vec3(0.0f, 0.0f, 1.0f), look);
-
 	transformation = glm::mat4(1.0f);
 	transformation = glm::translate(transformation, pos);
-	transformation = glm::rotate(transformation, glm::acos(cos_rotate), glm::vec3(0.0f, 1.0f, 0.0f));
-
+	
 	camera = glm::mat4(1.0f);
 	camera = glm::lookAt(camera_eye, camera_eye + look, glm::vec3(0.0f, 1.0f, 0.0f));
 }
@@ -195,22 +197,30 @@ GLboolean move_obj::collide(const mountain& mountain_obj)
 	GLfloat maxX = minX + mountain::width;
 	GLfloat minZ = -500.0f + mountain::length * mountain_obj.get_index_c();
 	GLfloat maxZ = minZ + mountain::length;
-	
-	if (pos.x - mountain::width / 4 < -500.0f || pos.x + mountain::width / 4 > 500.0f
-		|| pos.z - mountain::length / 4 < -500.0f || pos.z + mountain::width / 4 > 500.0f)
+
+
+	int invisiblepart = 10;//몸집을 카메라에 보이는 것 보다 작은 부위를 충돌 시킴
+	//맵 밖으로 못 나가도록.
+	if (pos.x - mountain::width / invisiblepart < -500.0f || pos.x + mountain::width / invisiblepart > 500.0f
+		|| pos.z - mountain::length / invisiblepart < -500.0f || pos.z + mountain::width / invisiblepart > 500.0f)
 		return true;
 
 	if (mountain_obj.maze_state)
 		return false;
 
-	if (pos.x - mountain::width / 4 > maxX)
+	if (pos.x - mountain::width / invisiblepart > maxX)
 		return false;
-	if (pos.x + mountain::width / 4 < minX)
+	if (pos.x + mountain::width / invisiblepart < minX)
 		return false;
-	if (pos.z - mountain::length / 4 > maxZ)
+	if (pos.z - mountain::length / invisiblepart > maxZ)
 		return false;
-	if (pos.z + mountain::length / 4 < minZ)
+	if (pos.z + mountain::length / invisiblepart < minZ)
 		return false;
 
 	return true;
+}
+
+GLvoid move_obj::change_camera_look(const glm::vec3 lookvector)
+{
+	look = lookvector;
 }

@@ -1,4 +1,5 @@
 #define _USE_MATH_DEFINES
+#define _CRT_SECURE_NO_WARNINGS
 #include "axes.h"
 #include "read_Obj.h"
 #include "cuboid.h"
@@ -6,6 +7,7 @@
 #include "mountain.h"
 #include "move_obj.h"
 #include "my_maze.h"
+#include "state.h"
 
 
 GLvoid drawScene();
@@ -16,8 +18,8 @@ GLvoid KeyUpEvent(unsigned char key, int x, int y);
 
 GLvoid spKeyEvent(int key, int x, int y);
 GLvoid spKeyUpEvent(int key, int x, int y);
-GLvoid MouseClick();
-GLvoid MouseMove();
+
+GLvoid passiveMouseMotion(int x, int y);
 
 void initBuffer();
 
@@ -60,6 +62,10 @@ std::vector<std::vector<mountain>> mountain_list;
 maze mountainMaze;
 
 move_obj* mainObject;
+
+//camera 1pov variable
+GLboolean set_cusor = true, firstMouse = false;
+GLfloat lastX, lastY, yaw = -90.0f, pitch = 0.0f;
 
 int main(int argc, char** argv)
 {
@@ -108,6 +114,7 @@ int main(int argc, char** argv)
 	glutSpecialFunc(spKeyEvent);
 	glutKeyboardUpFunc(KeyUpEvent);
 	glutSpecialUpFunc(spKeyUpEvent);
+	glutPassiveMotionFunc(passiveMouseMotion);
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
@@ -129,7 +136,6 @@ int main(int argc, char** argv)
 
 	glutMainLoop();
 }
-
 
 GLvoid drawScene()
 {
@@ -196,15 +202,6 @@ GLvoid drawScene()
 		for (int j = 0; j < mountain::rNum; ++j)
 			mountain_list[i][j].drawMaze(modelLocation);
 
-	//else
-	//{
-	//	for (int i = 0; i < mountain::cNum; ++i)
-	//	{
-	//		for (int j = 0; j < mountain::rNum; ++j)
-	//			mountain_list[i][j].draw(modelLocation);
-	//	}
-	//}
-
 	glutSwapBuffers();
 }
 
@@ -216,9 +213,9 @@ GLvoid Reshape(int w, int h)
 
 GLvoid TimeEvent(int value)
 {
-	camera = glm::mat4(1.0f);
-	camera = glm::lookAt(camera_eye, camera_look, glm::vec3(0.0f, 1.0f, 0.0f));
-	camera = glm::rotate(camera, glm::radians(cameraAngle), glm::vec3(0.0f, 1.0f, 0.0f));
+	//camera = glm::mat4(1.0f);
+	//camera = glm::lookAt(camera_eye, camera_look, glm::vec3(0.0f, 1.0f, 0.0f));
+	//camera = glm::rotate(camera, glm::radians(cameraAngle), glm::vec3(0.0f, 1.0f, 0.0f));
 
 	if (!mountain::initAni)
 	{
@@ -228,24 +225,17 @@ GLvoid TimeEvent(int value)
 				mountain_list[i][j].init_animation();
 		}
 	}
-	else if(STATE::mountain_animation)
-	{
-		for (int i = 0; i < mountain::cNum; ++i)
-		{
-			for (int j = 0; j < mountain::rNum; ++j)
-				mountain_list[i][j].animation();
-		}
-	}
-	
-	
+
 	mainObject->move(mountain_list);
 
 	glutPostRedisplay();
-	glutTimerFunc(100, TimeEvent, 0);
+	glutTimerFunc(10, TimeEvent, 0);
 }
 
 GLvoid KeyEvent(unsigned char key, int x, int y)
 {
+	mainObject->setDirection(key, true);
+
 	if (key == 'q')
 	{
 		delete mainObject;
@@ -253,64 +243,80 @@ GLvoid KeyEvent(unsigned char key, int x, int y)
 	}
 }
 
+GLvoid KeyUpEvent(unsigned char key, int x, int y)
+{
+	mainObject->setDirection(key, false);
+}
+
 GLvoid spKeyEvent(int key, int x, int y)
 {
-	if (mainObject->get_dir().x == 10 && (key == GLUT_KEY_LEFT || key == GLUT_KEY_RIGHT) )
-		mainObject->set_dir(key);
-	if(mainObject->get_dir().y == 10 && (key == GLUT_KEY_UP || key == GLUT_KEY_DOWN))
-		mainObject->set_dir(key);
-
-	if (key == GLUT_KEY_LEFT && !STATE::dir[0])
-	{
-		STATE::dir[0] = true;
-		mainObject->setDirection(key, true);
-	}
-	else if (key == GLUT_KEY_RIGHT && !STATE::dir[1])
-	{
-		STATE::dir[1] = true;
-		mainObject->setDirection(key, true);
-	}
-	else if (key == GLUT_KEY_UP && !STATE::dir[2])
-	{
-		STATE::dir[2] = true;
-		mainObject->setDirection(key, true);
-	}
-	else if (key == GLUT_KEY_DOWN && !STATE::dir[3])
-	{
-		STATE::dir[3] = true;
-		mainObject->setDirection(key, true);
-	}
+	
 }
 
 GLvoid spKeyUpEvent(int key, int x, int y)
 {
-	if (key == GLUT_KEY_LEFT && STATE::dir[0] && mainObject->get_dir().x != 10)
-	{
-		STATE::dir[0] = false;
-		mainObject->setDirection(key, false);
-	}
-	else if (key == GLUT_KEY_RIGHT && STATE::dir[1] && mainObject->get_dir().x != 10)
-	{
-		STATE::dir[1] = false;
-		mainObject->setDirection(key, false);
-	}
-	else if (key == GLUT_KEY_UP && STATE::dir[2] && mainObject->get_dir().y != 10)
-	{
-		STATE::dir[2] = false;
-		mainObject->setDirection(key, false);
-	}
-	else if (key == GLUT_KEY_DOWN && STATE::dir[3] && mainObject->get_dir().y != 10)
-	{
-		STATE::dir[3] = false;
-		mainObject->setDirection(key, false);
-	}
+	
 }
 
+GLvoid GLTranspose(GLclampf* x, GLclampf* y)
+{
+	if (*x < 1) *x = -(1 - *x);
+	else *x -= 1;
 
-GLvoid KeyUpEvent(unsigned char key, int x, int y)
+	if (*y < 1) *y = (1 - *y);
+	else *y = -(*y - 1);
+}
+
+GLvoid passiveMouseMotion(int x, int y)
 {
 
+	GLfloat xPos = (GLfloat)x / ((GLfloat)window_w / 2), yPos = (GLfloat)y / ((GLfloat)window_h / 2);
+	GLTranspose(&xPos, &yPos);
+
+	if (set_cusor) {
+		glutWarpPointer(window_w / 2, window_h / 2);
+		set_cusor = false;
+		firstMouse = true;
+	}
+	else {
+		set_cusor = true;
+	}
+
+	if (firstMouse)
+	{
+		lastX = xPos;
+		lastY = yPos;
+		firstMouse = false;
+		return;
+	}
+
+	GLfloat xoffset = xPos - lastX;
+	GLfloat yoffset = lastY - yPos;
+	lastX = xPos;
+	lastY = yPos;
+
+	GLfloat sensitivity = 60.0f;
+	xoffset *= sensitivity;
+	yoffset *= sensitivity;
+
+	yaw -= xoffset;
+	pitch += yoffset;
+
+	if (pitch > 89.0f) {
+		pitch = 89.0f;
+	}
+	if (pitch < -89.0f) {
+		pitch = -89.0f;
+	}
+
+	glm::vec3 front;
+	front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+	front.y = sin(glm::radians(pitch));
+	front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+	mainObject->change_camera_look(glm::normalize(front));
+
 }
+
 
 void initBuffer()
 {
