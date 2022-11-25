@@ -171,10 +171,31 @@ GLvoid move_obj::move(const std::vector<std::vector<mountain>>& mountainList)
 	{
 		for (int j = 0; j < mountain::rNum; ++j) 
 		{
-			if (collide(mountainList[i][j]))
-			{
+			if (collide(mountainList[i][j])) {
 				pos.x = oldPos.x;
 				pos.z = oldPos.z;
+
+				for (int k = 0; k < 4; ++k) {
+					if (STATE::dir[k]) {
+						pos.x += direction[k].x * speed;
+					}
+				}
+
+				if (collide(mountainList[i][j])) {
+					pos.x = oldPos.x;
+					pos.z = oldPos.z;
+
+					for (int k = 0; k < 4; ++k) {
+						if (STATE::dir[k]) {
+							pos.z += direction[k].z * speed;
+						}
+					}
+
+					if (collide(mountainList[i][j])) {
+						pos.x = oldPos.x;
+						pos.z = oldPos.z;
+					}
+				}
 			}
 		}
 	}
