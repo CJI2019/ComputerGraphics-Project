@@ -78,6 +78,7 @@ public:
 	GLvoid reveal();
 	GLvoid move(const std::vector<std::vector<mountain>>& mountainList);
 	GLboolean collide(const mountain& mountain_obj);
+	GLfloat* get_bb();
 
 
 	GLvoid change_camera_look(const glm::vec3 lookvector);
@@ -201,6 +202,18 @@ GLvoid move_obj::move(const std::vector<std::vector<mountain>>& mountainList)
 	camera = glm::lookAt(camera_eye, camera_eye + look, glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
+GLfloat* move_obj::get_bb()
+{
+	GLfloat invisiblepart = 10.0f;//몸집을 카메라에 보이는 것 보다 작은 부위를 충돌 시킴
+	GLfloat bb[4] = { 
+		pos.x - mountain::width / invisiblepart,
+		pos.x + mountain::width / invisiblepart,
+		pos.z - mountain::length / invisiblepart,
+		pos.z + mountain::length / invisiblepart
+	};
+	return bb;
+}
+
 GLboolean move_obj::collide(const mountain& mountain_obj)
 {
 	//자신과 충돌체크
@@ -210,23 +223,23 @@ GLboolean move_obj::collide(const mountain& mountain_obj)
 	GLfloat minZ = -500.0f + mountain::length * mountain_obj.get_index_c();
 	GLfloat maxZ = minZ + mountain::length;
 
+	GLfloat* bb = get_bb();
 
-	int invisiblepart = 10;//몸집을 카메라에 보이는 것 보다 작은 부위를 충돌 시킴
 	//맵 밖으로 못 나가도록.
-	if (pos.x - mountain::width / invisiblepart < -500.0f || pos.x + mountain::width / invisiblepart > 500.0f
-		|| pos.z - mountain::length / invisiblepart < -500.0f || pos.z + mountain::width / invisiblepart > 500.0f)
+	if (bb[0] < -500.0f || bb[1] > 500.0f
+		|| bb[2] < -500.0f || bb[3] > 500.0f)
 		return true;
 
 	if (mountain_obj.maze_state)
 		return false;
 
-	if (pos.x - mountain::width / invisiblepart > maxX)
+	if (bb[0] > maxX)
 		return false;
-	if (pos.x + mountain::width / invisiblepart < minX)
+	if (bb[1] < minX)
 		return false;
-	if (pos.z - mountain::length / invisiblepart > maxZ)
+	if (bb[2] > maxZ)
 		return false;
-	if (pos.z + mountain::length / invisiblepart < minZ)
+	if (bb[3] < minZ)
 		return false;
 
 	return true;
