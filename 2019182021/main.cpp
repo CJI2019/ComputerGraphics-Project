@@ -6,6 +6,7 @@
 #include "mountain.h"
 #include "move_obj.h"
 #include "my_maze.h"
+#include "pac_man.h"
 
 
 GLvoid drawScene();
@@ -71,6 +72,8 @@ maze mountainMaze;
 
 move_obj* mainObject;
 
+chase_pac_man* test_pac;
+
 int main(int argc, char** argv)
 {
 	glutInit(&argc, argv);
@@ -85,7 +88,7 @@ int main(int argc, char** argv)
 	mountain::rNum = 25;
 	mountain::cNum = 25;
 	mapFloor.set_floor(mountain::rNum, mountain::cNum);
-	std::cout << 'z';
+	
 
 	mountainMaze.initialize((mountain::rNum + 1) / 2, (mountain::cNum + 1) / 2);
 	while(!maze::completeGenerate)
@@ -104,10 +107,23 @@ int main(int argc, char** argv)
 	}
 
 	mainObject = new move_obj();
+	test_pac = new chase_pac_man();
 
 	set_maze(mountainMaze, mountain_list);
 	mainObject->reveal();
 
+	for (int i = 0; i < 25; ++i)
+	{
+		for (int j = 0; j < 25; ++j)
+		{
+			if (mountain_list[i][j].maze_state)
+				std::cout << "  ";
+			else
+				std::cout << "ㅁ";
+		}
+		std::cout << std::endl;
+	}
+	
 	//세이더 읽어와서 세이더 프로그램 만들기
 	shaderID = make_shaderProgram();	//세이더 프로그램 만들기
 	initBuffer();
@@ -184,6 +200,7 @@ GLvoid drawScene()
 
 	mainObject->draw(modelLocation);
 
+	test_pac->draw(modelLocation);
 
 	glViewport(800, 500, 200, 200);
 	glDisable(GL_DEPTH_TEST);
@@ -201,7 +218,7 @@ GLvoid drawScene()
 
 	mainObject->draw(modelLocation);
 
-
+	test_pac->draw(modelLocation);
 
 	for (int i = 0; i < mountain::cNum; ++i)
 		for (int j = 0; j < mountain::rNum; ++j)

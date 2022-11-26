@@ -297,7 +297,7 @@ GLvoid open_random_maze(std::vector<std::vector<mountain>>& mountainList, const 
 				complete_open = true;
 			}			break;
 		case 3: // right ¿¬´Ù
-			if (i == mountain::rNum - 1)
+			if (j == mountain::rNum - 1)
 				break;
 			else if (!mountainList[i][j + 1].maze_state)
 			{
@@ -309,5 +309,4 @@ GLvoid open_random_maze(std::vector<std::vector<mountain>>& mountainList, const 
 			break;
 		}
 	}
-	
 }

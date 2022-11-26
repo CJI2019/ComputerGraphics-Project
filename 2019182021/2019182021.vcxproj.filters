@@ -39,6 +39,9 @@
     <ClInclude Include="move_obj.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="pac_man.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="fragment.glsl">
