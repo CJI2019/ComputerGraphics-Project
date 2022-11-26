@@ -8,6 +8,8 @@
 #include "my_maze.h"
 #include "pac_man.h"
 
+#include "find_path.h"
+
 
 GLvoid drawScene();
 GLvoid Reshape(int w, int h);
@@ -154,6 +156,9 @@ int main(int argc, char** argv)
 	mini_projection = glm::mat4(1.0f);
 	mini_projection = glm::ortho(-1000.0f, 1000.0f, -1000.0f, 1000.0f, 50.0f, 3000.0f);
 
+	find_path(mountain_list, 24, 24, 0, 0);
+
+
 	glutMainLoop();
 }
 
@@ -224,14 +229,6 @@ GLvoid drawScene()
 		for (int j = 0; j < mountain::rNum; ++j)
 			mountain_list[i][j].drawMaze(modelLocation);
 
-	//else
-	//{
-	//	for (int i = 0; i < mountain::cNum; ++i)
-	//	{
-	//		for (int j = 0; j < mountain::rNum; ++j)
-	//			mountain_list[i][j].draw(modelLocation);
-	//	}
-	//}
 
 	glutSwapBuffers();
 }

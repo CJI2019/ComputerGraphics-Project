@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="axes.h" />
     <ClInclude Include="cuboid.h" />
+    <ClInclude Include="find_path.h" />
     <ClInclude Include="floor.h" />
     <ClInclude Include="move_obj.h" />
     <ClInclude Include="my_maze.h" />
