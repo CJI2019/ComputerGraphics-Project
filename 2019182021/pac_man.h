@@ -1,10 +1,12 @@
 #pragma once
 #include "make_Shader.h"
 #include "cuboid.h"
+#include "mountain.h"
+#include "find_path.h"
 
 class pac_man
 {
-private:
+protected:
 	unsigned int vao;
 	unsigned int vbo_vertex;
 	unsigned int vbo_texture;
@@ -14,17 +16,18 @@ private:
 	std::vector<GLfloat> color = std::vector<GLfloat>(108);
 	glm::mat4 transformation;
 
-	GLint now_index_col;
-	GLint now_index_row;
+	int col;
+	int row;
 
 	glm::vec3 pos;
 	GLfloat speed;
+	std::vector<int> paths;
 
 public:
 	pac_man();
-	
 
 	GLvoid draw(unsigned int& modelLocation);
+	GLvoid update();
 	//virtual GLvoid move();
 };
 
@@ -33,8 +36,8 @@ pac_man::pac_man()
 	makeCuboid(vertex, 10.0f, 20.0f);
 	setCol(color, 0.0f, 1.0f, 0.5f);
 
-	now_index_col = 24;
-	now_index_row = 24;
+	col = 24;
+	row = 24;
 
 	pos.x = 480.0f;
 	pos.y = 0.0f;
@@ -70,17 +73,6 @@ GLvoid pac_man::draw(unsigned int& modelLocation)
 	glDrawArrays(GL_TRIANGLES, 0, vertex.size() / 3);
 }
 
-
-
-class chase_pac_man : public pac_man
-{
-public:
-
-	GLvoid search_target(); // 타겟의 위치를 찾는다.
-	GLvoid set_path(); //경로를 설정한다.
-	//virtual GLvoid move();
-
-};
 
 class wander_pac_man : public pac_man
 {

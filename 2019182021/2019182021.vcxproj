@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="axes.h" />
+    <ClInclude Include="chase_pac_man.h" />
     <ClInclude Include="cuboid.h" />
     <ClInclude Include="find_path.h" />
     <ClInclude Include="floor.h" />

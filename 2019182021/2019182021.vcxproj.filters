@@ -45,6 +45,9 @@
     <ClInclude Include="find_path.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="chase_pac_man.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="fragment.glsl">

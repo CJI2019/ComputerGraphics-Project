@@ -2,7 +2,6 @@
 #include "make_Shader.h"
 #include "cuboid.h"
 #include "my_maze.h"
-//#include "move_obj.h"
 
 
 class mountain

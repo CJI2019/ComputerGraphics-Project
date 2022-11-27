@@ -7,6 +7,7 @@
 #include "move_obj.h"
 #include "my_maze.h"
 #include "pac_man.h"
+#include "chase_pac_man.h"
 
 #include "find_path.h"
 
@@ -48,7 +49,7 @@ unsigned int viewLocation;
 unsigned int projLocation;
 
 glm::mat4 camera;
-glm::vec3 camera_eye = glm::vec3(700.0f, 800.0f, 700.0f);
+glm::vec3 camera_eye = glm::vec3(0.0f, 1000.0f, 700.0f);
 glm::vec3 camera_look = glm::vec3(0.0f, 0.0f, 0.0f);
 
 GLfloat cameraAngle = 0.0f;
@@ -147,7 +148,7 @@ int main(int argc, char** argv)
 	projLocation = glGetUniformLocation(shaderID, "projectionTransform");
 
 
-	camera = glm::lookAt(camera_eye, camera_look, glm::vec3(0.0f, 1.0f, 0.0f));
+	camera = glm::lookAt(camera_eye, camera_look, glm::vec3(0.0f, 0.0f, -1.0f));
 	topViewCamera = glm::lookAt(tVCamra_eye, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
 	
 	projection = glm::mat4(1.0f);
@@ -156,8 +157,9 @@ int main(int argc, char** argv)
 	mini_projection = glm::mat4(1.0f);
 	mini_projection = glm::ortho(-1000.0f, 1000.0f, -1000.0f, 1000.0f, 50.0f, 3000.0f);
 
-	find_path(mountain_list, 24, 24, 0, 0);
-
+	//test_pac->set_path(mountain_list, 0, 0);
+	//test_pac->set_col(23);
+	//test_pac->set_path(mountain_list, 0, 0);
 
 	glutMainLoop();
 }
@@ -230,6 +232,8 @@ GLvoid drawScene()
 			mountain_list[i][j].drawMaze(modelLocation);
 
 
+
+
 	glutSwapBuffers();
 }
 
@@ -263,10 +267,13 @@ GLvoid TimeEvent(int value)
 	}
 	
 	
-	mainObject->move(mountain_list);
+	//mainObject->move(mountain_list);
+	if(test_pac->get_col() != 0 || test_pac->get_row() != 0)
+		test_pac->set_path(mountain_list, 0, 0);
+	test_pac->move();
 
 	glutPostRedisplay();
-	glutTimerFunc(100, TimeEvent, 0);
+	glutTimerFunc(10, TimeEvent, 0);
 }
 
 GLvoid KeyEvent(unsigned char key, int x, int y)

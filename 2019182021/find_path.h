@@ -2,7 +2,6 @@
 #include "make_Shader.h"
 #include <iostream>
 #include <queue>
-#include <vector>
 #include <list>
 
 
@@ -13,10 +12,10 @@ private:
 	bool visit = false;
 	int col;
 	int row;
-
 	path* prev = nullptr;
 
 public:
+	int dist = 0;
 
 	bool get_wall()const { return wall; }
 	bool get_visit()const { return visit; }
@@ -34,9 +33,12 @@ public:
 
 bool is_path(const path path_matrix[][25], int dist_col, int dist_row);
 
-GLvoid find_path(std::vector<std::vector<mountain>>& m_list, const int& start_col, const int& start_row, const int& target_col, const int& target_row)
+std::vector<int> find_path(const std::vector<std::vector<mountain>>& m_list, const int& start_col, const int& start_row, const int& target_col, const int& target_row)
 {
+	//std::cout << start_col << ' ' << start_row << std::endl;
+
 	path path_matrix[25][25];
+
 	for (int i = 0; i < 25; ++i)
 	{
 		for (int j = 0; j < 25; ++j)
@@ -46,53 +48,73 @@ GLvoid find_path(std::vector<std::vector<mountain>>& m_list, const int& start_co
 			path_matrix[i][j].set_row(j);
 		}
 	}
-	int start[2] = { start_col, start_row };
 	
-	int dist_col[] = { 0, 1, 0, -1 };
-	int dist_row[] = { 1, 0, -1, 0 };
-
-	std::list<path> final_path;
+	int dist_col[] = { -1, 0, 1, 0 };
+	int dist_row[] = { 0, 1, 0, -1 };
+	
+	std::vector<path> final;
 	std::queue<path> adjacent_queue;
-	path_matrix[start[0]][start[1]].set_visit();
-	adjacent_queue.push(path_matrix[start[0]][start[1]]);
+		
+	adjacent_queue.push(path_matrix[start_col][start_row]);
+
+	path_matrix[start_col][start_row].set_visit();
+	path_matrix[start_col][start_row].dist = 1;
 
 	//큐가 빌때까지 반복한다.
 	while (!adjacent_queue.empty())
 	{
-		path* now_path = &adjacent_queue.front();
+		path now_path = adjacent_queue.front();
 		adjacent_queue.pop();
-
-		if (now_path->get_col() == target_col && now_path->get_row() == target_row)
+	
+		if (now_path.get_col() == target_col && now_path.get_row() == target_row)
 		{
-			path found_path = *now_path;
-			while (found_path.get_prev() != NULL)
+			path now = path_matrix[target_col][target_row];
+
+			while (now.get_prev() != nullptr)
 			{
-				final_path.push_front(found_path);
-				found_path = *found_path.get_prev();
+				final.push_back(now);
+				now = *now.get_prev();
 			}
-			final_path.push_front(found_path);
 			break;
 		}
 
 		for (int i = 0; i < 4; ++i)
 		{
-			int search_col = now_path->get_col() + dist_col[i];
-			int search_row = now_path->get_row() + dist_row[i];
+			int search_col = now_path.get_col() + dist_col[i];
+			int search_row = now_path.get_row() + dist_row[i];
 			if (is_path(path_matrix, search_col, search_row))
-			{
+			{	
+
 				path_matrix[search_col][search_row].set_visit();
-				path_matrix[search_col][search_row].set_prev(&path_matrix[now_path->get_col()][now_path->get_row()]);
+				path_matrix[search_col][search_row].set_prev(&path_matrix[now_path.get_col()][now_path.get_row()]);
+				path_matrix[search_col][search_row].dist = now_path.dist + 1;				
 				adjacent_queue.push(path_matrix[search_col][search_row]);
 
 			}
 		}
 	}
 
-	std::list<path>::iterator iter = final_path.begin();
-	for (iter; iter != final_path.end(); iter++)
-	{
-		std::cout << "( " << iter->get_col() << ", " << iter->get_row() << ")\n ";
-	}
+
+
+	//for (int i = 0; i < final.size(); ++i)
+	//{
+	//	std::cout << final[i].get_col() << ' ' << final[i].get_row() << std::endl;
+	//}
+	//std::cout << std::endl;
+
+	//for (int i = 0; i < 25; ++i)
+	//{
+	//	for (int j = 0; j < 25; ++j)
+	//	{
+	//		std::cout.width(2);
+	//		std::cout << path_matrix[i][j].dist << ' ';
+	//	}
+	//	std::cout << std::endl;
+	//}
+	//std::cout << std::endl;
+
+	std::vector<int> last = {final[final.size() - 1].get_col(),final[final.size() - 1].get_row()};
+	return last;
 }
 
 bool is_path(const path path_matrix[][25], int dist_col, int dist_row)
