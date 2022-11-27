@@ -71,6 +71,7 @@ public:
 	GLfloat get_speed() const { return speed; }
 	glm::vec3 get_look() const { return look; }
 	glm::mat4 get_camera() const { return camera; }
+	glm::vec3 get_pos() const { return pos; }
 	//glm::vec3 get_dir() const { return direction; }
 
 
