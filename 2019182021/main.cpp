@@ -43,7 +43,7 @@ glm::vec3 camera_look = glm::vec3(0.0f, 0.0f, 0.0f);
 GLfloat cameraAngle = 0.0f;
 
 glm::mat4 topViewCamera;
-glm::vec3 tVCamra_eye = glm::vec3(0.0f, 1000.0f, 0.0f);
+glm::vec3 tVCamra_eye = glm::vec3(0.0f, 500.0f, 0.0f);
 
 glm::mat4 projection;
 glm::mat4 mini_projection;
@@ -77,7 +77,7 @@ int main(int argc, char** argv)
 
 	glewExperimental = GL_TRUE;
 	glewInit();
-	glutSetCursor(GLUT_CURSOR_NONE); // ï¿½ï¿½ï¿½ì½º Ä¿ï¿½ï¿½ï¿½ï¿½ ï¿½Èºï¿½ï¿½Ì°ï¿½ ï¿½Ñ´ï¿½.
+	glutSetCursor(GLUT_CURSOR_NONE); // ¸¶¿ì½º Ä¿¼­¸¦ ¾Èº¸ÀÌ°Ô ÇÑ´Ù.
 
 	mountain::rNum = 25;
 	mountain::cNum = 25;
@@ -127,13 +127,13 @@ int main(int argc, char** argv)
 
 
 	camera = glm::lookAt(camera_eye, camera_look, glm::vec3(0.0f, 1.0f, 0.0f));
-	topViewCamera = glm::lookAt(tVCamra_eye, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
 	
 	projection = glm::mat4(1.0f);
 	//±ÙÆò¸éÀº Æ÷ÇÔÀÌ°í ¿øÆò¸éÀº Æ÷ÇÔX
-	projection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 3000.0f);
+	projection = glm::perspective(glm::radians(60.0f), 1.0f, 0.1f, 3000.0f);
 	mini_projection = glm::mat4(1.0f);
-	mini_projection = glm::ortho(-1000.0f, 1000.0f, -1000.0f, 1000.0f, 50.0f, 3000.0f);
+	//mini_projection = glm::ortho(-1000.0f, 1000.0f, -1000.0f, 1000.0f, 50.0f, 3000.0f);
+	mini_projection = glm::ortho(-100.0f, 100.0f, -100.0f, 100.0f, 50.0f, 3000.0f);
 
 	glutMainLoop();
 }
@@ -181,7 +181,17 @@ GLvoid drawScene()
 	mainObject->draw(modelLocation);
 
 
-	glViewport(800, 500, 200, 200);
+	//glViewport(800, 500, 200, 200);
+	glViewport(window_w/8, window_h/8, 300, 300);
+
+	glm::vec3 Player_location = mainObject->get_pos();
+	glm::vec3 minimap_cameraUp =
+		glm::rotate(glm::mat4(1.0f), glm::radians(yaw), glm::vec3(0.0f, 1.0f, 0.0f)) *
+		glm::vec4(0.0f, 0.0f, -1.0f, 1.0f);
+	tVCamra_eye = glm::vec3(Player_location.x, 500.0f, Player_location.z);
+	topViewCamera = glm::lookAt( tVCamra_eye,
+		Player_location + glm::vec3(0.0f, -1.0f, 0.0f),	minimap_cameraUp);
+
 	glDisable(GL_DEPTH_TEST);
 
 	glUniformMatrix4fv(projLocation, 1, GL_FALSE, glm::value_ptr(projection));
@@ -192,17 +202,15 @@ GLvoid drawScene()
 
 	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, mapFloor.get_ptr_transformation());
 	glBindVertexArray(vao_floor);
-	glDrawArrays(GL_TRIANGLES, 0, mapFloor.get_vertex().size() / 3);
+	if (STATE::minnimap_On) {
+		glDrawArrays(GL_TRIANGLES, 0, mapFloor.get_vertex().size() / 3);
 
+		mainObject->draw(modelLocation);
 
-	mainObject->draw(modelLocation);
-
-
-
-	for (int i = 0; i < mountain::cNum; ++i)
-		for (int j = 0; j < mountain::rNum; ++j)
-			mountain_list[i][j].drawMaze(modelLocation);
-
+		for (int i = 0; i < mountain::cNum; ++i)
+			for (int j = 0; j < mountain::rNum; ++j)
+				mountain_list[i][j].drawMaze(modelLocation);
+	}
 	glutSwapBuffers();
 }
 
@@ -237,6 +245,9 @@ GLvoid KeyEvent(unsigned char key, int x, int y)
 	{
 		delete mainObject;
 		glutExit();
+	}
+	else if (key == 'm') {
+		STATE::minnimap_On = (STATE::minnimap_On + 1) % 2;
 	}
 }
 

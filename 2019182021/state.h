@@ -8,4 +8,5 @@ namespace STATE
 	GLboolean dir[4] = { false, false, false, false };
 	GLboolean quarter_view = false;
 	GLboolean minimap_perspective = false;
+	GLboolean minnimap_On = true;
 }
