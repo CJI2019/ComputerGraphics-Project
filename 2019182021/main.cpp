@@ -77,6 +77,7 @@ int main(int argc, char** argv)
 
 	glewExperimental = GL_TRUE;
 	glewInit();
+	glutSetCursor(GLUT_CURSOR_NONE); // ���콺 Ŀ���� �Ⱥ��̰� �Ѵ�.
 
 	mountain::rNum = 25;
 	mountain::cNum = 25;
@@ -213,10 +214,6 @@ GLvoid Reshape(int w, int h)
 
 GLvoid TimeEvent(int value)
 {
-	//camera = glm::mat4(1.0f);
-	//camera = glm::lookAt(camera_eye, camera_look, glm::vec3(0.0f, 1.0f, 0.0f));
-	//camera = glm::rotate(camera, glm::radians(cameraAngle), glm::vec3(0.0f, 1.0f, 0.0f));
-
 	if (!mountain::initAni)
 	{
 		for (int i = 0; i < mountain::cNum; ++i)
@@ -269,7 +266,7 @@ GLvoid GLTranspose(GLclampf* x, GLclampf* y)
 
 GLvoid passiveMouseMotion(int x, int y)
 {
-
+	
 	GLfloat xPos = (GLfloat)x / ((GLfloat)window_w / 2), yPos = (GLfloat)y / ((GLfloat)window_h / 2);
 	GLTranspose(&xPos, &yPos);
 
@@ -289,7 +286,7 @@ GLvoid passiveMouseMotion(int x, int y)
 		firstMouse = false;
 		return;
 	}
-
+	
 	GLfloat xoffset = xPos - lastX;
 	GLfloat yoffset = lastY - yPos;
 	lastX = xPos;
@@ -299,20 +296,21 @@ GLvoid passiveMouseMotion(int x, int y)
 	xoffset *= sensitivity;
 	yoffset *= sensitivity;
 
-	yaw -= xoffset;
+	yaw += xoffset;
 	pitch += yoffset;
+	
+	if (yaw < 0.0f) yaw += 360.0f;
+	if (yaw > 360.0f) yaw -= 360.0f;
 
-	if (pitch > 89.0f) {
-		pitch = 89.0f;
-	}
-	if (pitch < -89.0f) {
-		pitch = -89.0f;
-	}
+
+	if (pitch > 89.0f) pitch = 89.0f;
+	if (pitch < -89.0f) pitch = -89.0f;
 
 	glm::vec3 front;
-	front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-	front.y = sin(glm::radians(pitch));
-	front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+	front =
+		glm::rotate(glm::mat4(1.0f), glm::radians(yaw), glm::vec3(0.0f, 1.0f, 0.0f)) *
+		glm::rotate(glm::mat4(1.0f), glm::radians(pitch), glm::vec3(1.0f, 0.0f, 0.0f)) *
+		glm::vec4(0.0f, 0.0f, -1.0f, 0.0f);
 	mainObject->change_camera_look(glm::normalize(front));
 
 }
