@@ -3,7 +3,7 @@
 #include <vector>
 #include <string.h>
 
-struct objRead {
+typedef struct objRead {
 
 	std::vector< unsigned int > vertexIndices, uvIndices, normalIndices;
 	std::vector< glm::vec3 > temp_vertices;
@@ -11,6 +11,8 @@ struct objRead {
 	std::vector< glm::vec3 > temp_normals;
 	std::vector< glm::vec3 > outvertex, outnormal;
 	std::vector< glm::vec2 > outuv;
+
+	std::vector< glm::vec3 > color;
 
 	float sumX = 0.0, sumY = 0.0, sumZ = 0.0;
 	float aveX, aveY, aveZ;
@@ -22,6 +24,9 @@ struct objRead {
 	float sizeX, sizeY, sizeZ;
 
 	int loadObj_normalize_center(const char* filename);
+
+	//cji
+	GLuint vao, vbo[3];
 
 };
 
@@ -73,17 +78,20 @@ int objRead::loadObj_normalize_center(const char* filename)
 		else if (strcmp(lineHeader, "f") == 0) {
 			std::string vertex1, vertex2, vertex3;
 			unsigned int vertexIndex[3], uvIndex[3], normalIndex[3];
-			int matches = fscanf_s(objFile, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &vertexIndex[0], &uvIndex[0], &normalIndex[0], &vertexIndex[1], &uvIndex[1], &normalIndex[1], &vertexIndex[2], &uvIndex[2], &normalIndex[2]);
-			if (matches != 9) {
+			//int matches = fscanf_s(objFile, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &vertexIndex[0], &uvIndex[0], &normalIndex[0], &vertexIndex[1], &uvIndex[1], &normalIndex[1], &vertexIndex[2], &uvIndex[2], &normalIndex[2]);
+			int matches = fscanf_s(objFile, "%d//%d %d//%d %d//%d", &vertexIndex[0], &normalIndex[0], &vertexIndex[1], &normalIndex[1], &vertexIndex[2], &normalIndex[2]);
+			//uvindex 제외
+
+			if (matches != 6) {
 				printf("File can't be read by our simple parser : ( Try exporting with other options\n");
 				return false;
 			}
 			vertexIndices.push_back(vertexIndex[0]);
 			vertexIndices.push_back(vertexIndex[1]);
 			vertexIndices.push_back(vertexIndex[2]);
-			uvIndices.push_back(uvIndex[0]);
-			uvIndices.push_back(uvIndex[1]);
-			uvIndices.push_back(uvIndex[2]);
+			//uvIndices.push_back(uvIndex[0]);
+			//uvIndices.push_back(uvIndex[1]);
+			//uvIndices.push_back(uvIndex[2]);
 			normalIndices.push_back(normalIndex[0]);
 			normalIndices.push_back(normalIndex[1]);
 			normalIndices.push_back(normalIndex[2]);
@@ -119,6 +127,11 @@ int objRead::loadObj_normalize_center(const char* filename)
 		//temp.z = ((temp.z * 2.0f) / (scaleZ * 2.0f)) - 0.2f;
 
 		outvertex.push_back(temp);
+		
+		//임시로 컬러 값을 넣어본다.
+		temp = { 0.55f, 0.0f, 1.0f, };
+		color.push_back(temp);
+
 		//glm::vec3 vertex = temp_vertices[vertexIndex - 1];
 		//outvertex.push_back(vertex);
 	}
