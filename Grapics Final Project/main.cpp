@@ -1,7 +1,7 @@
 #define _USE_MATH_DEFINES
 #define _CRT_SECURE_NO_WARNINGS
-#include "axes.h"
 #include "read_Obj.h"
+#include "axes.h"
 #include "cuboid.h"
 #include "floor.h"
 #include "mountain.h"
@@ -22,9 +22,6 @@ GLvoid spKeyUpEvent(int key, int x, int y);
 GLvoid passiveMouseMotion(int x, int y);
 
 void initBuffer();
-
-GLvoid convert_OpenglXY_WindowXY(int& x, int& y, const float& ox, const float& oy);
-GLvoid convert_WindowXY_OpenglXY(const int& x, const int& y, float& ox, float& oy);
 
 const GLint window_w = 1000, window_h = 700;
 GLfloat rColor = 0.0f, gColor = 0.0f, bColor = 0.0f;
@@ -177,7 +174,6 @@ GLvoid drawScene()
 			mountain_list[i][j].drawMaze(modelLocation);
 	}
 	
-
 	mainObject->draw(modelLocation);
 
 

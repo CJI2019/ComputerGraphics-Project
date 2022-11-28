@@ -104,4 +104,3 @@ GLint make_shaderProgram()
 
 	return ShaderProgramID;
 }
-
