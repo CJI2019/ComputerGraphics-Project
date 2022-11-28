@@ -8,6 +8,7 @@
 #include "move_obj.h"
 #include "my_maze.h"
 #include "state.h"
+#include "Jewel.h"
 
 
 GLvoid drawScene();
@@ -64,6 +65,11 @@ move_obj* mainObject;
 GLboolean set_cusor = true, firstMouse = false;
 GLfloat lastX, lastY, yaw = -90.0f, pitch = 0.0f;
 
+
+objRead Jewelobj;
+
+Jewel jewel[1];
+
 int main(int argc, char** argv)
 {
 	glutInit(&argc, argv);
@@ -101,6 +107,8 @@ int main(int argc, char** argv)
 	set_maze(mountainMaze, mountain_list);
 	mainObject->reveal();
 
+	jewel[0].set_pos(mainObject->get_pos().x, mainObject->get_pos().y, mainObject->get_pos().z);
+	std::cout << mainObject->get_pos().x<< mainObject->get_pos().y<< mainObject->get_pos().z;
 	//세이더 읽어와서 세이더 프로그램 만들기
 	shaderID = make_shaderProgram();	//세이더 프로그램 만들기
 	initBuffer();
@@ -176,6 +184,7 @@ GLvoid drawScene()
 	
 	mainObject->draw(modelLocation);
 
+	jewel[0].draw(modelLocation,Jewelobj);
 
 	//glViewport(800, 500, 200, 200);
 	glViewport(window_w/8, window_h/8, 300, 300);
@@ -202,6 +211,7 @@ GLvoid drawScene()
 		glDrawArrays(GL_TRIANGLES, 0, mapFloor.get_vertex().size() / 3);
 
 		mainObject->draw(modelLocation);
+		jewel[0].draw(modelLocation, Jewelobj);
 
 		for (int i = 0; i < mountain::cNum; ++i)
 			for (int j = 0; j < mountain::rNum; ++j)
@@ -352,6 +362,23 @@ void initBuffer()
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo_floor[0]);
 	glBufferData(GL_ARRAY_BUFFER, mapFloor.get_vertex().size() * sizeof(GLfloat), mapFloor.get_vertex().data(), GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(0);
+
+	Jewelobj.loadObj_normalize_center("jewel.obj");
+
+	glGenVertexArrays(1, &Jewelobj.vao);
+	glGenBuffers(3, Jewelobj.vbo);
+
+	glBindVertexArray(Jewelobj.vao);
+
+	glBindBuffer(GL_ARRAY_BUFFER, Jewelobj.vbo[1]);
+	glBufferData(GL_ARRAY_BUFFER, Jewelobj.color.size() * 3 * 4, Jewelobj.color.data(), GL_STATIC_DRAW);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(1);
+
+	glBindBuffer(GL_ARRAY_BUFFER, Jewelobj.vbo[0]);
+	glBufferData(GL_ARRAY_BUFFER, Jewelobj.outvertex.size()*3*4, Jewelobj.outvertex.data(), GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(0);
 
