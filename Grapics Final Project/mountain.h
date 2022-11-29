@@ -7,8 +7,6 @@
 class mountain
 {
 private:
-	GLuint vao;
-	GLuint vbo[2];
 
 	std::vector<GLfloat> vertex = std::vector<GLfloat>(108);
 	std::vector<GLfloat> color = std::vector<GLfloat>(108);;
@@ -24,6 +22,8 @@ private:
 public:
 	GLboolean maze_state;
 
+	static GLuint vao;
+	static GLuint vbo[2];
 	static GLfloat width;
 	static GLfloat length;
 	static GLboolean initAni;
@@ -62,20 +62,23 @@ public:
 		//보석 위치를 얻어올 좌표값
 		pos = { (-500.0f + mountain::width / 2) + mountain::width * index_r, 0.0f, (-500.0f + mountain::length / 2) + mountain::length * index_c };
 
-		glGenVertexArrays(1, &vao);
-		glGenBuffers(2, vbo);
+		if (mountain::vao == 0)
+		{
+			glGenVertexArrays(1, &mountain::vao);
+			glGenBuffers(2, mountain::vbo);
 
-		glBindVertexArray(vao);
+			glBindVertexArray(mountain::vao);
 
-		glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
-		glBufferData(GL_ARRAY_BUFFER, color.size() * sizeof(GLfloat), color.data(), GL_STATIC_DRAW);
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
-		glEnableVertexAttribArray(1);
+			glBindBuffer(GL_ARRAY_BUFFER, mountain::vbo[1]);
+			glBufferData(GL_ARRAY_BUFFER, color.size() * sizeof(GLfloat), color.data(), GL_STATIC_DRAW);
+			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+			glEnableVertexAttribArray(1);
 
-		glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-		glBufferData(GL_ARRAY_BUFFER, vertex.size() * sizeof(GLfloat), vertex.data(), GL_STATIC_DRAW);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-		glEnableVertexAttribArray(0);
+			glBindBuffer(GL_ARRAY_BUFFER, mountain::vbo[0]);
+			glBufferData(GL_ARRAY_BUFFER, vertex.size() * sizeof(GLfloat), vertex.data(), GL_STATIC_DRAW);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+			glEnableVertexAttribArray(0);
+		}
 	}
 
 	GLvoid set_speed(const GLfloat& i_speed) { speed += i_speed; }
@@ -94,6 +97,8 @@ public:
 	GLfloat get_height() { return now_height; };
 };
 
+GLuint mountain::vao = 0;
+GLuint mountain::vbo[2];
 GLfloat mountain::width = 0.0f;
 GLfloat mountain::length = 0.0f;
 GLboolean mountain::initAni = false;
@@ -104,7 +109,7 @@ GLint mountain::cNum = 0;
 GLvoid mountain::draw(unsigned int& modelLocation)
 {
 	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(transformation));
-	glBindVertexArray(vao);
+	glBindVertexArray(mountain::vao);
 	glDrawArrays(GL_TRIANGLES, 0, vertex.size() / 3);
 }
 

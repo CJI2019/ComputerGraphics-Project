@@ -66,7 +66,7 @@ GLboolean set_cusor = true, firstMouse = false;
 GLfloat lastX, lastY, yaw = -90.0f, pitch = 0.0f;
 
 
-objRead Jewelobj, Hexahedron;
+objRead Hexahedron;
 
 Jewel** jewel;
 
@@ -85,7 +85,7 @@ int main(int argc, char** argv)
 	mountain::rNum = 25;
 	mountain::cNum = 25;
 	mapFloor.set_floor(mountain::rNum, mountain::cNum);
-	//std::cout << "hello";
+
 	mountainMaze.initialize((mountain::rNum + 1) / 2, (mountain::cNum + 1) / 2);
 	while(!maze::completeGenerate)
 		mountainMaze.generator();
@@ -113,8 +113,7 @@ int main(int argc, char** argv)
 	}
 	for (int i = 0; i < mountain::rNum; ++i) {
 		for (int j = 0; j < mountain::cNum; ++j) {
-			jewel[i][j].set_pos(mountain(i, j).pos.x, mountain(i, j).pos.y, mountain(i, j).pos.z);
-
+			jewel[i][j].set_pos(mountain_list[i][j].pos.x, mountain_list[i][j].pos.y, mountain_list[i][j].pos.z);
 		}
 	}
 	//세이더 읽어와서 세이더 프로그램 만들기
@@ -130,8 +129,8 @@ int main(int argc, char** argv)
 	glutSpecialUpFunc(spKeyUpEvent);
 	glutPassiveMotionFunc(passiveMouseMotion);
 
-	//glEnable(GL_DEPTH_TEST);
-	//glEnable(GL_CULL_FACE);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	modelLocation = glGetUniformLocation(shaderID, "modelTransform");
@@ -153,7 +152,7 @@ int main(int argc, char** argv)
 
 GLvoid drawScene()
 {
-	//glEnable(GL_DEPTH_TEST);
+	glEnable(GL_DEPTH_TEST);
 	//glEnable(GL_CULL_FACE);
 	glClearColor(rColor, gColor, bColor, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -187,12 +186,11 @@ GLvoid drawScene()
 	for (int i = 0; i < mountain::cNum; ++i) {
 		for (int j = 0; j < mountain::rNum; ++j) {
 			mountain_list[i][j].drawMaze(modelLocation);
-			if (!jewel[i][j].cover_maze)
-				jewel[i][j].draw(modelLocation, Jewelobj);
+			jewel[i][j].draw(modelLocation);
 		}
 	}
 	
-	//mainObject->draw(modelLocation);
+	mainObject->draw(modelLocation);
 
 	glViewport(window_w/8, window_h/8, 300, 300);
 
@@ -222,7 +220,7 @@ GLvoid drawScene()
 			for (int j = 0; j < mountain::rNum; ++j) {
 				mountain_list[i][j].drawMaze(modelLocation);
 				if (!jewel[i][j].cover_maze){}
-					//jewel[i][j].draw(modelLocation, Jewelobj);
+					jewel[i][j].draw(modelLocation);
 			}
 		}
 	}
@@ -390,20 +388,6 @@ void initBuffer()
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(0);
 
-	Jewelobj.loadObj_normalize_center("jewel.obj");
-	glGenVertexArrays(1, &Jewelobj.vao);
-	glGenBuffers(3, Jewelobj.vbo);
 
-	glBindVertexArray(Jewelobj.vao);
-
-	glBindBuffer(GL_ARRAY_BUFFER, Jewelobj.vbo[1]);
-	glBufferData(GL_ARRAY_BUFFER, Jewelobj.color.size() * 3 * 4, Jewelobj.color.data(), GL_STATIC_DRAW);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(1);
-
-	glBindBuffer(GL_ARRAY_BUFFER, Jewelobj.vbo[0]);
-	glBufferData(GL_ARRAY_BUFFER, Jewelobj.outvertex.size()*3*4, Jewelobj.outvertex.data(), GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(0);
 
 }
