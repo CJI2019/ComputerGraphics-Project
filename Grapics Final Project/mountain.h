@@ -29,6 +29,9 @@ public:
 	static GLboolean initAni;
 	static GLint rNum;
 	static GLint cNum;
+	
+	//cji
+	glm::vec3 pos;
 
 	mountain(const GLint& r, const GLint& c)
 	{
@@ -55,7 +58,9 @@ public:
 		transformation = glm::translate(transformation,
 						 glm::vec3((-500.0f + mountain::width / 2) + mountain::width * index_r, 0.0f, (-500.0f + mountain::length / 2) + mountain::length * index_c));
 
-		transformation = glm::scale(transformation, glm::vec3(1.0f, now_height, 1.0f));
+ 		transformation = glm::scale(transformation, glm::vec3(1.0f, now_height, 1.0f));
+		//보석 위치를 얻어올 좌표값
+		pos = { (-500.0f + mountain::width / 2) + mountain::width * index_r, 0.0f, (-500.0f + mountain::length / 2) + mountain::length * index_c };
 
 		glGenVertexArrays(1, &vao);
 		glGenBuffers(2, vbo);
@@ -85,6 +90,8 @@ public:
 	GLvoid animation();
 	friend GLvoid set_maze(const maze& completeMaze, std::vector<std::vector<mountain>>& mountainList);
 	GLvoid set_height();
+	//cji
+	GLfloat get_height() { return now_height; };
 };
 
 GLfloat mountain::width = 0.0f;
@@ -124,6 +131,7 @@ GLvoid mountain::init_animation()
 	transformation = glm::translate(transformation,
 		glm::vec3((-500.0f + mountain::width / 2) + mountain::width * index_r, max_height * now_height, (-500.0f + mountain::length / 2) + mountain::length * index_c));
 	transformation = glm::scale(transformation, glm::vec3(1.0f, now_height, 1.0f));
+
 }
 
 GLvoid mountain::animation()

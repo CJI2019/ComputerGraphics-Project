@@ -9,3 +9,4 @@ namespace STATE
 	GLboolean quarter_view = false;
 	GLboolean minimap_perspective = false;
 	GLboolean minnimap_On = true;
+}

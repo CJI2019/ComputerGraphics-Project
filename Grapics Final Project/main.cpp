@@ -66,9 +66,9 @@ GLboolean set_cusor = true, firstMouse = false;
 GLfloat lastX, lastY, yaw = -90.0f, pitch = 0.0f;
 
 
-objRead Jewelobj;
+objRead Jewelobj, Hexahedron;
 
-Jewel jewel[1];
+Jewel** jewel;
 
 int main(int argc, char** argv)
 {
@@ -107,8 +107,16 @@ int main(int argc, char** argv)
 	set_maze(mountainMaze, mountain_list);
 	mainObject->reveal();
 
-	jewel[0].set_pos(mainObject->get_pos().x, mainObject->get_pos().y, mainObject->get_pos().z);
-	std::cout << mainObject->get_pos().x<< mainObject->get_pos().y<< mainObject->get_pos().z;
+	jewel = new Jewel*[mountain::rNum];
+	for (int i = 0; i < mountain::rNum; ++i) {
+		jewel[i] = new Jewel[mountain::cNum];
+	}
+	for (int i = 0; i < mountain::rNum; ++i) {
+		for (int j = 0; j < mountain::cNum; ++j) {
+			jewel[i][j].set_pos(mountain(i, j).pos.x, mountain(i, j).pos.y, mountain(i, j).pos.z);
+
+		}
+	}
 	//세이더 읽어와서 세이더 프로그램 만들기
 	shaderID = make_shaderProgram();	//세이더 프로그램 만들기
 	initBuffer();
@@ -122,8 +130,8 @@ int main(int argc, char** argv)
 	glutSpecialUpFunc(spKeyUpEvent);
 	glutPassiveMotionFunc(passiveMouseMotion);
 
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
+	//glEnable(GL_DEPTH_TEST);
+	//glEnable(GL_CULL_FACE);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	modelLocation = glGetUniformLocation(shaderID, "modelTransform");
@@ -145,8 +153,8 @@ int main(int argc, char** argv)
 
 GLvoid drawScene()
 {
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
+	//glEnable(GL_DEPTH_TEST);
+	//glEnable(GL_CULL_FACE);
 	glClearColor(rColor, gColor, bColor, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
@@ -176,17 +184,16 @@ GLvoid drawScene()
 	glDrawArrays(GL_TRIANGLES, 0, mapFloor.get_vertex().size() / 3);
 		
 
-	for (int i = 0; i < mountain::cNum; ++i)
-	{
-		for (int j = 0; j < mountain::rNum; ++j)
+	for (int i = 0; i < mountain::cNum; ++i) {
+		for (int j = 0; j < mountain::rNum; ++j) {
 			mountain_list[i][j].drawMaze(modelLocation);
+			if (!jewel[i][j].cover_maze)
+				jewel[i][j].draw(modelLocation, Jewelobj);
+		}
 	}
 	
-	mainObject->draw(modelLocation);
+	//mainObject->draw(modelLocation);
 
-	jewel[0].draw(modelLocation,Jewelobj);
-
-	//glViewport(800, 500, 200, 200);
 	glViewport(window_w/8, window_h/8, 300, 300);
 
 	glm::vec3 Player_location = mainObject->get_pos();
@@ -205,17 +212,19 @@ GLvoid drawScene()
 
 	glUniformMatrix4fv(viewLocation, 1, GL_FALSE, glm::value_ptr(topViewCamera));
 
-	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, mapFloor.get_ptr_transformation());
-	glBindVertexArray(vao_floor);
 	if (STATE::minnimap_On) {
+		glUniformMatrix4fv(modelLocation, 1, GL_FALSE, mapFloor.get_ptr_transformation());
+		glBindVertexArray(vao_floor);
 		glDrawArrays(GL_TRIANGLES, 0, mapFloor.get_vertex().size() / 3);
 
 		mainObject->draw(modelLocation);
-		jewel[0].draw(modelLocation, Jewelobj);
-
-		for (int i = 0; i < mountain::cNum; ++i)
-			for (int j = 0; j < mountain::rNum; ++j)
+		for (int i = 0; i < mountain::cNum; ++i) {
+			for (int j = 0; j < mountain::rNum; ++j) {
 				mountain_list[i][j].drawMaze(modelLocation);
+				if (!jewel[i][j].cover_maze){}
+					//jewel[i][j].draw(modelLocation, Jewelobj);
+			}
+		}
 	}
 	glutSwapBuffers();
 }
@@ -365,8 +374,23 @@ void initBuffer()
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(0);
 
-	Jewelobj.loadObj_normalize_center("jewel.obj");
+	Hexahedron.loadObj_normalize_center("hexahedron.obj");
+	glGenVertexArrays(1, &Hexahedron.vao);
+	glGenBuffers(3, Hexahedron.vbo);
 
+	glBindVertexArray(Hexahedron.vao);
+
+	glBindBuffer(GL_ARRAY_BUFFER, Hexahedron.vbo[1]);
+	glBufferData(GL_ARRAY_BUFFER, Hexahedron.color.size() * 3 * 4, Hexahedron.color.data(), GL_STATIC_DRAW);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(1);
+
+	glBindBuffer(GL_ARRAY_BUFFER, Hexahedron.vbo[0]);
+	glBufferData(GL_ARRAY_BUFFER, Hexahedron.outvertex.size() * 3 * 4, Hexahedron.outvertex.data(), GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(0);
+
+	Jewelobj.loadObj_normalize_center("jewel.obj");
 	glGenVertexArrays(1, &Jewelobj.vao);
 	glGenBuffers(3, Jewelobj.vbo);
 

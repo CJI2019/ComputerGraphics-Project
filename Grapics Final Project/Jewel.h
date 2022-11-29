@@ -4,9 +4,12 @@ class Jewel
 {
 private:
 	glm::vec3 pos;
-	GLfloat size;
 	glm::mat4 transformation;
+	GLfloat size;
 public:
+
+	GLboolean cover_maze = false;
+
 	Jewel();
 	~Jewel();
 	glm::vec3 get_pos();
