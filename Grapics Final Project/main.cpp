@@ -122,16 +122,16 @@ int main(int argc, char** argv)
 
 	glutDisplayFunc(drawScene);
 	glutReshapeFunc(Reshape);
-	glutTimerFunc(100, TimeEvent, 0);
+	glutTimerFunc(10, TimeEvent, 0);
 	glutKeyboardFunc(KeyEvent);
 	glutSpecialFunc(spKeyEvent);
 	glutKeyboardUpFunc(KeyUpEvent);
 	glutSpecialUpFunc(spKeyUpEvent);
 	glutPassiveMotionFunc(passiveMouseMotion);
 
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	//glEnable(GL_DEPTH_TEST);
+	//glEnable(GL_CULL_FACE);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	modelLocation = glGetUniformLocation(shaderID, "modelTransform");
 	viewLocation = glGetUniformLocation(shaderID, "viewTransform");
@@ -186,11 +186,14 @@ GLvoid drawScene()
 	for (int i = 0; i < mountain::cNum; ++i) {
 		for (int j = 0; j < mountain::rNum; ++j) {
 			mountain_list[i][j].drawMaze(modelLocation);
-			jewel[i][j].draw(modelLocation);
+			if (!jewel[i][j].cover_maze) {
+				jewel[i][j].draw(modelLocation);
+			}
 		}
 	}
 	
-	mainObject->draw(modelLocation);
+	//미니맵에서만 플레이어 객체 보임.
+	//mainObject->draw(modelLocation);
 
 	glViewport(window_w/8, window_h/8, 300, 300);
 
@@ -219,8 +222,9 @@ GLvoid drawScene()
 		for (int i = 0; i < mountain::cNum; ++i) {
 			for (int j = 0; j < mountain::rNum; ++j) {
 				mountain_list[i][j].drawMaze(modelLocation);
-				if (!jewel[i][j].cover_maze){}
+				if (!jewel[i][j].cover_maze) {
 					jewel[i][j].draw(modelLocation);
+				}
 			}
 		}
 	}

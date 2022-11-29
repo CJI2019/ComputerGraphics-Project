@@ -64,7 +64,7 @@ GLfloat Jewel::get_size() { return size; }
 
 GLvoid Jewel::set_pos(GLfloat x, GLfloat y, GLfloat z)
 {
-	pos = { x, y, z };
+	pos = { x, y + 5.0f * 1.0f, z };
 	transformation = glm::mat4(1.0f);
 	transformation = glm::translate(transformation, pos);
 	transformation = glm::scale(transformation, glm::vec3(5.0f, 5.0f, 5.0f));
