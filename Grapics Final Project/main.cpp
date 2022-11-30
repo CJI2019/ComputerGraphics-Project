@@ -209,7 +209,7 @@ GLvoid drawScene()
 	glm::vec3 minimap_cameraUp =
 		glm::rotate(glm::mat4(1.0f), glm::radians(yaw), glm::vec3(0.0f, 1.0f, 0.0f)) *
 		glm::vec4(0.0f, 0.0f, -1.0f, 1.0f);
-	tVCamra_eye = glm::vec3(Player_location.x, 500.0f, Player_location.z);
+	tVCamra_eye = glm::vec3(Player_location.x, 1000.0f, Player_location.z);
 	topViewCamera = glm::lookAt( tVCamra_eye,
 		Player_location + glm::vec3(0.0f, -1.0f, 0.0f),	minimap_cameraUp);
 
