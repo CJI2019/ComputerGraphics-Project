@@ -82,7 +82,7 @@ public:
 	GLfloat* get_bb();
 
 
-	GLvoid change_camera_look(const glm::vec3 lookvector);
+	GLvoid change_camera_look(const glm::vec3& lookvector);
 };
 
 GLvoid move_obj::setDirection(int key, GLboolean down)
@@ -246,7 +246,7 @@ GLboolean move_obj::collide(const mountain& mountain_obj)
 	return true;
 }
 
-GLvoid move_obj::change_camera_look(const glm::vec3 lookvector)
+GLvoid move_obj::change_camera_look(const glm::vec3& lookvector)
 {
 	look = lookvector;
 }
