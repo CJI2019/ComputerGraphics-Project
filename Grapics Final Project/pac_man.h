@@ -74,7 +74,7 @@ GLvoid pac_man::draw(unsigned int& modelLocation)
 }
 
 
-class wander_pac_man : public pac_man
-{
-
-};
+//class wander_pac_man : public pac_man
+//{
+//
+//};

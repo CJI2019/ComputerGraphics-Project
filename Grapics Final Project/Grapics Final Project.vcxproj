@@ -19,17 +19,20 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="all_include_file.h" />
     <ClInclude Include="axes.h" />
     <ClInclude Include="chase_pac_man.h" />
     <ClInclude Include="cuboid.h" />
     <ClInclude Include="find_path.h" />
     <ClInclude Include="floor.h" />
+    <ClInclude Include="Jewel.h" />
     <ClInclude Include="move_obj.h" />
     <ClInclude Include="my_maze.h" />
     <ClInclude Include="make_Shader.h" />
     <ClInclude Include="mountain.h" />
     <ClInclude Include="pac_man.h" />
     <ClInclude Include="read_Obj.h" />
+    <ClInclude Include="state.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="fragment.glsl" />
@@ -41,9 +44,10 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{1b9704b6-17a5-432b-adef-26f9b09683b5}</ProjectGuid>
+    <ProjectGuid>{BFA74F76-B394-4AA2-8D17-AE8AFCC26DC4}</ProjectGuid>
     <RootNamespace>My2019182021</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>Grapics Final Project</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -100,6 +104,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalOptions>glew32.lib freeglut.lib %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -128,6 +133,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalOptions>glew32.lib freeglut.lib %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
