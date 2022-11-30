@@ -2,7 +2,6 @@
 #include "make_Shader.h"
 #include "cuboid.h"
 #include "my_maze.h"
-//#include "move_obj.h"
 
 class mountain
 {
@@ -38,7 +37,7 @@ public:
 		std::uniform_int_distribution<int> dis(50, 300);
 		std::uniform_int_distribution<int> dis_speed(1, 10);
 		//max_height = static_cast<GLfloat>(dis(gen));
-		max_height = 10;
+		max_height = 5;
 		speed = static_cast<GLfloat>(dis_speed(gen)) * 0.01;
 		now_height = 0.0f;
 		state_up = true;
@@ -58,7 +57,7 @@ public:
 		transformation = glm::translate(transformation,
 						 glm::vec3((-500.0f + mountain::width / 2) + mountain::width * index_r, 0.0f, (-500.0f + mountain::length / 2) + mountain::length * index_c));
 
- 		transformation = glm::scale(transformation, glm::vec3(1.0f, now_height, 1.0f));
+		transformation = glm::scale(transformation, glm::vec3(1.0f, max_height, 1.0f));
 		//보석 위치를 얻어올 좌표값
 		pos = { (-500.0f + mountain::width / 2) + mountain::width * index_r, 0.0f, (-500.0f + mountain::length / 2) + mountain::length * index_c };
 
@@ -96,6 +95,7 @@ public:
 	//cji
 	GLfloat get_height() { return now_height; };
 };
+GLvoid open_random_maze(std::vector<std::vector<mountain>>& mountainList, const int& i, const int& j, const int& wall_num);
 
 GLuint mountain::vao = 0;
 GLuint mountain::vbo[2];
@@ -226,6 +226,37 @@ GLvoid set_maze(const maze& completeMaze, std::vector<std::vector<mountain>>& mo
 			mountainList[dis(gen)][mountain::rNum - 1].maze_state = true;
 
 	}
+	for (int i = 0; i < mountain::cNum; ++i)
+	{
+		for (int j = 0; j < mountain::rNum; ++j)
+		{
+			int wall_num = 0;
+			if (i == 0)
+				wall_num++;
+			else if (!mountainList[i - 1][j].maze_state)
+				wall_num++;
+
+			if (i == mountain::cNum - 1)
+				wall_num++;
+			else if (!mountainList[i + 1][j].maze_state)
+				wall_num++;
+
+			if (j == 0)
+				wall_num++;
+			else if (!mountainList[i][j - 1].maze_state)
+				wall_num++;
+
+			if (j == mountain::rNum - 1)
+				wall_num++;
+			else if (!mountainList[i][j + 1].maze_state)
+				wall_num++;
+
+			if (wall_num >= 3)
+			{
+				open_random_maze(mountainList, i, j, wall_num);
+			}
+		}
+	}
 }
 
 GLvoid mountain::set_height()
@@ -239,3 +270,52 @@ GLvoid mountain::set_height()
 	}
 }
 
+GLvoid open_random_maze(std::vector<std::vector<mountain>>& mountainList, const int& i, const int& j, const int& wall_num)
+{
+	std::uniform_int_distribution<int> dis(0, wall_num);
+
+	GLboolean complete_open = false;
+
+	while (!complete_open)
+	{
+		switch (dis(gen))
+		{
+		case 0: //top 연다
+			if (i == 0)
+				break;
+			else if (!mountainList[i - 1][j].maze_state)
+			{
+				mountainList[i - 1][j].maze_state = true;
+				complete_open = true;
+			}
+			break;
+		case 1: //left 연다
+			if (j == 0)
+				break;
+			else if (!mountainList[i][j - 1].maze_state)
+			{
+				mountainList[i][j - 1].maze_state = true;
+				complete_open = true;
+			}			break;
+		case 2: // bottom 연다
+			if (i == mountain::cNum - 1)
+				break;
+			else if (!mountainList[i + 1][j].maze_state)
+			{
+				mountainList[i + 1][j].maze_state = true;
+				complete_open = true;
+			}			break;
+		case 3: // right 연다
+			if (j == mountain::rNum - 1)
+				break;
+			else if (!mountainList[i][j + 1].maze_state)
+			{
+				mountainList[i][j + 1].maze_state = true;
+				complete_open = true;
+			}
+			break;
+		default:
+			break;
+		}
+	}
+}

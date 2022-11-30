@@ -119,13 +119,17 @@ int objRead::loadObj_normalize_center(const char* filename)
 		temp = temp_vertices[vertexIndex - 1];
 
 		//노말라이징
-		//temp.x = temp.x - minX;
-		//temp.y = temp.y - minY;
-		//temp.z = temp.z - minZ;
-		//temp.x = ((temp.x * 2.0f) / (scaleX * 2.0f)) - 0.2f;
-		//temp.y = ((temp.y * 2.0f) / (scaleY * 2.0f)) - 0.2f;
-		//temp.z = ((temp.z * 2.0f) / (scaleZ * 2.0f)) - 0.2f;
+		/*temp.x = temp.x - minX;
+		temp.y = temp.y - minY;
+		temp.z = temp.z - minZ;
+		temp.x = ((temp.x * 2.0f) / (scaleX * 2.0f)) - 0.2f;
+		temp.y = ((temp.y * 2.0f) / (scaleY * 2.0f)) - 0.2f;
+		temp.z = ((temp.z * 2.0f) / (scaleZ * 2.0f)) - 0.2f;*/
 
+		//보석 스케일
+		if (filename == "jewel.obj") {
+			temp = glm::scale(glm::mat4(1.0f), glm::vec3(5.0f, 5.0f, 5.0f)) * glm::vec4(temp, 1.0f);
+		}
 		outvertex.push_back(temp);
 		
 		//임시로 컬러 값을 넣어본다.

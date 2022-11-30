@@ -9,7 +9,9 @@
 #include "my_maze.h"
 #include "state.h"
 #include "Jewel.h"
-
+#include "pac_man.h"
+#include "chase_pac_man.h"
+#include "find_path.h"
 
 GLvoid drawScene();
 GLvoid Reshape(int w, int h);
@@ -70,6 +72,8 @@ objRead Hexahedron;
 
 Jewel** jewel;
 
+chase_pac_man* test_pac;
+
 int main(int argc, char** argv)
 {
 	glutInit(&argc, argv);
@@ -82,8 +86,8 @@ int main(int argc, char** argv)
 	glewInit();
 	glutSetCursor(GLUT_CURSOR_NONE); // 마우스 커서를 안보이게 한다.
 
-	mountain::rNum = 25;
-	mountain::cNum = 25;
+	mountain::rNum = 40;
+	mountain::cNum = 40;
 	mapFloor.set_floor(mountain::rNum, mountain::cNum);
 
 	mountainMaze.initialize((mountain::rNum + 1) / 2, (mountain::cNum + 1) / 2);
@@ -102,6 +106,7 @@ int main(int argc, char** argv)
 		}
 	}
 
+	test_pac = new chase_pac_man();
 	mainObject = new move_obj();
 
 	set_maze(mountainMaze, mountain_list);
@@ -116,6 +121,7 @@ int main(int argc, char** argv)
 			jewel[i][j].set_pos(mountain_list[i][j].pos.x, mountain_list[i][j].pos.y, mountain_list[i][j].pos.z);
 		}
 	}
+
 	//세이더 읽어와서 세이더 프로그램 만들기
 	shaderID = make_shaderProgram();	//세이더 프로그램 만들기
 	initBuffer();
@@ -194,6 +200,7 @@ GLvoid drawScene()
 	
 	//미니맵에서만 플레이어 객체 보임.
 	//mainObject->draw(modelLocation);
+	test_pac->draw(modelLocation);
 
 	glViewport(window_w/8, window_h/8, 300, 300);
 
@@ -219,6 +226,7 @@ GLvoid drawScene()
 		glDrawArrays(GL_TRIANGLES, 0, mapFloor.get_vertex().size() / 3);
 
 		mainObject->draw(modelLocation);
+		test_pac->draw(modelLocation);
 		for (int i = 0; i < mountain::cNum; ++i) {
 			for (int j = 0; j < mountain::rNum; ++j) {
 				mountain_list[i][j].drawMaze(modelLocation);
@@ -239,14 +247,18 @@ GLvoid Reshape(int w, int h)
 
 GLvoid TimeEvent(int value)
 {
-	if (!mountain::initAni)
+	/*if (!mountain::initAni)
 	{
 		for (int i = 0; i < mountain::cNum; ++i)
 		{
 			for (int j = 0; j < mountain::rNum; ++j)
 				mountain_list[i][j].init_animation();
 		}
-	}
+	}*/
+
+	if (test_pac->get_col() != 0 || test_pac->get_row() != 0)
+		test_pac->set_path(mountain_list, 0, 0);
+	test_pac->move();
 
 	mainObject->move(mountain_list);
 

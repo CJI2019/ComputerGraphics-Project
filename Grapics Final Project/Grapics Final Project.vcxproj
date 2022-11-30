@@ -21,13 +21,16 @@
   <ItemGroup>
     <ClInclude Include="all_include_file.h" />
     <ClInclude Include="axes.h" />
+    <ClInclude Include="chase_pac_man.h" />
     <ClInclude Include="cuboid.h" />
+    <ClInclude Include="find_path.h" />
     <ClInclude Include="floor.h" />
     <ClInclude Include="Jewel.h" />
     <ClInclude Include="move_obj.h" />
     <ClInclude Include="my_maze.h" />
     <ClInclude Include="make_Shader.h" />
     <ClInclude Include="mountain.h" />
+    <ClInclude Include="pac_man.h" />
     <ClInclude Include="read_Obj.h" />
     <ClInclude Include="state.h" />
   </ItemGroup>
