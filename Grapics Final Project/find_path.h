@@ -4,7 +4,6 @@
 #include <queue>
 #include <list>
 
-
 class path
 {
 private:
@@ -35,8 +34,6 @@ bool is_path(const path path_matrix[][40], int dist_col, int dist_row);
 
 std::vector<int> find_path(const std::vector<std::vector<mountain>>& m_list, const int& start_col, const int& start_row, const int& target_col, const int& target_row)
 {
-	//std::cout << start_col << ' ' << start_row << std::endl;
-
 	path path_matrix[40][40];
 
 	for (int i = 0; i < 40; ++i)
@@ -48,13 +45,13 @@ std::vector<int> find_path(const std::vector<std::vector<mountain>>& m_list, con
 			path_matrix[i][j].set_row(j);
 		}
 	}
-	
+
 	int dist_col[] = { -1, 0, 1, 0 };
 	int dist_row[] = { 0, 1, 0, -1 };
-	
+
 	std::vector<path> final;
 	std::queue<path> adjacent_queue;
-		
+
 	adjacent_queue.push(path_matrix[start_col][start_row]);
 
 	path_matrix[start_col][start_row].set_visit();
@@ -65,7 +62,7 @@ std::vector<int> find_path(const std::vector<std::vector<mountain>>& m_list, con
 	{
 		path now_path = adjacent_queue.front();
 		adjacent_queue.pop();
-	
+
 		if (now_path.get_col() == target_col && now_path.get_row() == target_row)
 		{
 			path now = path_matrix[target_col][target_row];
@@ -83,18 +80,16 @@ std::vector<int> find_path(const std::vector<std::vector<mountain>>& m_list, con
 			int search_col = now_path.get_col() + dist_col[i];
 			int search_row = now_path.get_row() + dist_row[i];
 			if (is_path(path_matrix, search_col, search_row))
-			{	
+			{
 
 				path_matrix[search_col][search_row].set_visit();
 				path_matrix[search_col][search_row].set_prev(&path_matrix[now_path.get_col()][now_path.get_row()]);
-				path_matrix[search_col][search_row].dist = now_path.dist + 1;				
+				path_matrix[search_col][search_row].dist = now_path.dist + 1;
 				adjacent_queue.push(path_matrix[search_col][search_row]);
 
 			}
 		}
 	}
-
-
 
 	//for (int i = 0; i < final.size(); ++i)
 	//{
@@ -113,8 +108,17 @@ std::vector<int> find_path(const std::vector<std::vector<mountain>>& m_list, con
 	//}
 	//std::cout << std::endl;
 
-	std::vector<int> last = {final[final.size() - 1].get_col(),final[final.size() - 1].get_row()};
-	return last;
+	if (final.empty())
+	{
+		std::vector<int> last = { start_col, start_row };
+		return last;
+	}
+	else
+	{
+		std::vector<int> last = { final[final.size() - 1].get_col(),final[final.size() - 1].get_row() };
+		return last;
+	}
+	
 }
 
 bool is_path(const path path_matrix[][40], int dist_col, int dist_row)

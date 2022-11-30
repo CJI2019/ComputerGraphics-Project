@@ -25,13 +25,15 @@ private:
 	glm::mat4 camera;
 	glm::vec3 camera_eye;
 
+	int row;
+	int col;
 
 public:
 	move_obj()
 	{
 		pos = glm::vec3(-500.0f + mountain::width / 2, 10.0f, -500.0f + mountain::length / 2);
 		oldPos = pos;
-		speed = 1.0f;
+		speed = 1.15f;
 		state = false;
 		//direction[0] = { glm::vec3(0.0f, 0.0f, 0.0f) };
 		look = glm::vec3(0.0f, 0.0f, 1.0f);
@@ -42,6 +44,9 @@ public:
 		setCol(color, 0.3f, 0.5f, 0.8f);
 
 		camera_eye = glm::vec3(pos.x, pos.y, pos.z + mountain::width / 4);
+
+		row = 0;
+		col = 0;
 
 		glGenVertexArrays(1, &vao);
 		glGenBuffers(2, vbo);
@@ -72,6 +77,8 @@ public:
 	glm::vec3 get_look() const { return look; }
 	glm::mat4 get_camera() const { return camera; }
 	glm::vec3 get_pos() const { return pos; }
+	int get_col() const { return col; }
+	int get_row() const { return row; }
 	//glm::vec3 get_dir() const { return direction; }
 
 
@@ -192,6 +199,9 @@ GLvoid move_obj::move(const std::vector<std::vector<mountain>>& mountainList)
 			}
 		}
 	}
+
+	col = (pos.z + 500) / 25;
+	row = (pos.x + 500) / 25;
 
 	camera_eye = glm::vec3(pos.x, pos.y, pos.z);
 

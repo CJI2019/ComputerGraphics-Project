@@ -258,7 +258,7 @@ GLvoid TimeEvent(int value)
 	}*/
 
 	if (test_pac->get_col() != 0 || test_pac->get_row() != 0)
-		test_pac->set_path(mountain_list, 0, 0);
+		test_pac->set_path(mountain_list, *mainObject);
 	test_pac->move();
 
 	mainObject->move(mountain_list);
