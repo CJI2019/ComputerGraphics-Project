@@ -1,5 +1,4 @@
 #pragma once
-
 #include <stack>
 #include <vector>
 #include <random>

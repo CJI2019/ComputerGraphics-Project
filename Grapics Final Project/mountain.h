@@ -1,5 +1,6 @@
 #pragma once
-#include "make_Shader.h"
+//#include "make_Shader.h"
+#include "all_include_file.h"
 #include "cuboid.h"
 #include "my_maze.h"
 
@@ -36,7 +37,6 @@ public:
 	{
 		std::uniform_int_distribution<int> dis(50, 300);
 		std::uniform_int_distribution<int> dis_speed(1, 10);
-		//max_height = static_cast<GLfloat>(dis(gen));
 		max_height = 5;
 		speed = static_cast<GLfloat>(dis_speed(gen)) * 0.01;
 		now_height = 0.0f;
@@ -212,20 +212,26 @@ GLvoid set_maze(const maze& completeMaze, std::vector<std::vector<mountain>>& mo
 
 	if (mountain::cNum % 2 == 0)
 	{
-		std::uniform_int_distribution<int> dis(1, mountain::rNum - 4);
-		int random_loop = dis(gen);
-		for (int i = 0; i < random_loop; ++i)
-			mountainList[mountain::cNum - 1][dis(gen)].maze_state = true;
+		//std::uniform_int_distribution<int> dis(10, mountain::rNum - 4);
+		//int random_loop = dis(gen);
+		for (int i = 0; i < mountain::rNum; ++i)
+		{
+			if(i % 2 == 0)
+				mountainList[mountain::cNum - 1][i].maze_state = true;
+		}
 	}
 
 	if (mountain::rNum % 2 == 0)
 	{
-		std::uniform_int_distribution<int> dis(1, mountain::cNum - 4);
-		int random_loop = dis(gen);
-		for (int i = 0; i < random_loop; ++i)
-			mountainList[dis(gen)][mountain::rNum - 1].maze_state = true;
-
+		//std::uniform_int_distribution<int> dis(10, mountain::cNum - 4);
+		//int random_loop = dis(gen);
+		for (int i = 0; i < mountain::cNum; ++i)
+		{
+			if (i % 2 == 0)
+				mountainList[i][mountain::rNum - 1].maze_state = true;
+		}
 	}
+
 	for (int i = 0; i < mountain::cNum; ++i)
 	{
 		for (int j = 0; j < mountain::rNum; ++j)

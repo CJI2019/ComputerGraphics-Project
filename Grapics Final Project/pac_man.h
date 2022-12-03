@@ -26,6 +26,9 @@ protected:
 public:
 	pac_man();
 
+	int get_col()const { return col; }
+	int get_row()const { return row; }
+
 	GLvoid draw(unsigned int& modelLocation);
 	GLvoid update();
 	//virtual GLvoid move();
@@ -72,9 +75,3 @@ GLvoid pac_man::draw(unsigned int& modelLocation)
 	glBindVertexArray(vao);
 	glDrawArrays(GL_TRIANGLES, 0, vertex.size() / 3);
 }
-
-
-//class wander_pac_man : public pac_man
-//{
-//
-//};

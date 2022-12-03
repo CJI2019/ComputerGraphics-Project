@@ -31,7 +31,8 @@ private:
 public:
 	move_obj()
 	{
-		pos = glm::vec3(-500.0f + mountain::width / 2, 10.0f, -500.0f + mountain::length / 2);
+		//pos = glm::vec3(-500.0f + mountain::width / 2, 10.0f, -500.0f + mountain::length / 2);
+		pos = glm::vec3(500.0f - mountain::width / 2, 10.0f, 500.0f - mountain::length / 2);
 		oldPos = pos;
 		speed = 1.15f;
 		state = false;

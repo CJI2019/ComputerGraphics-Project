@@ -91,23 +91,6 @@ std::vector<int> find_path(const std::vector<std::vector<mountain>>& m_list, con
 		}
 	}
 
-	//for (int i = 0; i < final.size(); ++i)
-	//{
-	//	std::cout << final[i].get_col() << ' ' << final[i].get_row() << std::endl;
-	//}
-	//std::cout << std::endl;
-
-	//for (int i = 0; i < 25; ++i)
-	//{
-	//	for (int j = 0; j < 25; ++j)
-	//	{
-	//		std::cout.width(2);
-	//		std::cout << path_matrix[i][j].dist << ' ';
-	//	}
-	//	std::cout << std::endl;
-	//}
-	//std::cout << std::endl;
-
 	if (final.empty())
 	{
 		std::vector<int> last = { start_col, start_row };

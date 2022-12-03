@@ -5,9 +5,6 @@
 class chase_pac_man : public pac_man
 {
 public:
-	int get_col()const { return col; }
-	int get_row()const { return row; }
-
 	GLvoid set_col(const int& i_col) { col = i_col; }
 	GLvoid set_row(const int& i_row) { row = i_row; }
 	GLvoid set_path(const std::vector<std::vector<mountain>>& m_list, const int& target_col, const int& target_row); //경로를 설정한다.
@@ -31,7 +28,6 @@ GLvoid chase_pac_man::set_path(const std::vector<std::vector<mountain>>& m_list,
 
 GLvoid chase_pac_man::move()
 {
-
 	int next_col = paths[0] - col;
 	int next_row = paths[1] - row;
 

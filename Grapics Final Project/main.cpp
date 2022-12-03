@@ -11,6 +11,7 @@
 #include "Jewel.h"
 #include "pac_man.h"
 #include "chase_pac_man.h"
+#include "wander_pac_man.h"
 #include "find_path.h"
 
 GLvoid drawScene();
@@ -72,7 +73,8 @@ objRead Hexahedron;
 
 Jewel** jewel;
 
-chase_pac_man* test_pac;
+//chase_pac_man* test_pac;
+wander_pac_man* test_pac;
 
 int main(int argc, char** argv)
 {
@@ -107,7 +109,8 @@ int main(int argc, char** argv)
 		}
 	}
 
-	test_pac = new chase_pac_man();
+	//test_pac = new chase_pac_man();
+	test_pac = new wander_pac_man();
 	mainObject = new move_obj();
 
 	set_maze(mountainMaze, mountain_list);
@@ -248,17 +251,11 @@ GLvoid Reshape(int w, int h)
 
 GLvoid TimeEvent(int value)
 {
-	/*if (!mountain::initAni)
-	{
-		for (int i = 0; i < mountain::cNum; ++i)
-		{
-			for (int j = 0; j < mountain::rNum; ++j)
-				mountain_list[i][j].init_animation();
-		}
-	}*/
-
-	if (test_pac->get_col() != 0 || test_pac->get_row() != 0)
+	/*if (test_pac->get_col() != 0 || test_pac->get_row() != 0)
 		test_pac->set_path(mountain_list, *mainObject);
+	test_pac->move();*/
+
+	test_pac->set_path(mountain_list);
 	test_pac->move();
 
 	mainObject->move(mountain_list);

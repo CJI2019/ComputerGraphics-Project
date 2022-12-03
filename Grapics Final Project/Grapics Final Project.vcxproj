@@ -33,6 +33,7 @@
     <ClInclude Include="pac_man.h" />
     <ClInclude Include="read_Obj.h" />
     <ClInclude Include="state.h" />
+    <ClInclude Include="wander_pac_man.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="fragment.glsl" />
