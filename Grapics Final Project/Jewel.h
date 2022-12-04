@@ -5,7 +5,8 @@ class Jewel
 private:
 	glm::vec3 pos;
 	glm::mat4 transformation;
-	GLfloat size;
+	GLfloat size, angle;
+	int respawn_time;
 public:
 	static objRead read_obj;
 	static unsigned int vao;
@@ -26,6 +27,9 @@ public:
 	GLvoid draw(unsigned int& modelLocation);
 	GLfloat* get_bb();
 	GLboolean collision(GLfloat* move_obj_bb);
+	GLvoid respawn();
+	GLvoid generate_big_jewel();
+	GLvoid delete_big_jewel();
 };
 
 objRead Jewel::read_obj; 
@@ -35,8 +39,10 @@ unsigned int Jewel::vbo[2];
 Jewel::Jewel()
 {
 	pos = glm::vec3{ 0.0f };
-	size = 1.0f;
+	//scale �� ũ���� ����
+	size = 2.5f; angle = 0.0f;
 	transformation = glm::mat4{ 1.0f };
+	respawn_time = 0;
 
 	if (Jewel::vao == 0) {
 		Jewel::read_obj.loadObj_normalize_center("jewel.obj");
@@ -76,6 +82,10 @@ GLvoid Jewel::set_pos(glm::vec3 m_pos,GLboolean m_state)
 	}
 
 	pos = { m_pos.x, m_pos.y + 5.0f, m_pos.z };
+	if (rand() % 50 == 0) {
+		generate_big_jewel();
+		return;
+	}
 	transformation = glm::mat4(1.0f);
 	transformation = glm::translate(transformation, pos);
 	//transformation = glm::scale(transformation, glm::vec3(5.0f, 5.0f, 5.0f));
@@ -117,3 +127,33 @@ GLboolean Jewel::collision(GLfloat* move_obj_bb)
 	return true;
 }
 
+GLvoid Jewel::respawn()
+{
+
+	if (status_draw || !maze_state) return;
+
+	respawn_time += 1;
+
+	if (respawn_time == 2000) { //20�� �� ������ ����
+		status_draw = true;
+	}
+}
+
+GLvoid Jewel::generate_big_jewel()
+{
+	size = 5.0f;
+	pos.y += 5.0f;
+
+	transformation = glm::mat4(1.0f);
+	transformation = glm::translate(transformation, pos);
+	transformation = glm::scale(transformation, glm::vec3(2.0f, 2.0f, 2.0f));
+}
+
+GLvoid Jewel::delete_big_jewel()
+{
+	size = 2.5f;
+	pos.y -= 5.0f;
+
+	transformation = glm::mat4(1.0f);
+	transformation = glm::translate(transformation, pos);
+}
