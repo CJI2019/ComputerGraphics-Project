@@ -90,7 +90,7 @@ int main(int argc, char** argv)
 	mapFloor.set_floor(mountain::rNum, mountain::cNum);
 
 	mountainMaze.initialize((mountain::rNum + 1) / 2, (mountain::cNum + 1) / 2);
-	while(!maze::completeGenerate)
+	while (!maze::completeGenerate)
 		mountainMaze.generator();
 
 	mountain::length = mapFloor.get_length();
@@ -98,7 +98,7 @@ int main(int argc, char** argv)
 
 	mountain_list = std::vector<std::vector<mountain>>(mountain::cNum);
 	for (int i = 0; i < mountain::cNum; ++i)
-	{		
+	{
 		for (int j = 0; j < mountain::rNum; ++j)
 		{
 			mountain_list[i].push_back(mountain(j, i));
@@ -111,14 +111,14 @@ int main(int argc, char** argv)
 	set_maze(mountainMaze, mountain_list);
 	mainObject->reveal();
 
-	jewel = new Jewel*[mountain::rNum];
+	jewel = new Jewel * [mountain::rNum];
 	for (int i = 0; i < mountain::rNum; ++i) {
 		jewel[i] = new Jewel[mountain::cNum];
 	}
 	for (int i = 0; i < mountain::rNum; ++i) {
 		for (int j = 0; j < mountain::cNum; ++j) {
 			jewel[i][j].set_pos(mountain_list[i][j].pos, mountain_list[i][j].maze_state);
-			
+
 		}
 	}
 
@@ -145,7 +145,7 @@ int main(int argc, char** argv)
 
 
 	camera = glm::lookAt(camera_eye, camera_look, glm::vec3(0.0f, 1.0f, 0.0f));
-	
+
 	projection = glm::mat4(1.0f);
 	//근평면은 포함이고 원평면은 포함X
 	projection = glm::perspective(glm::radians(60.0f), 1.0f, 0.1f, 3000.0f);
@@ -162,9 +162,9 @@ GLvoid drawScene()
 	//glEnable(GL_CULL_FACE);
 	glClearColor(rColor, gColor, bColor, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
+
 	//랜더링 파이프라인에 세이더 불러오기
-	
+
 	glUseProgram(shaderID);
 	glViewport(0, 0, window_w, window_h);
 
@@ -176,7 +176,7 @@ GLvoid drawScene()
 
 	//투영 변환 적용
 	glUniformMatrix4fv(projLocation, 1, GL_FALSE, glm::value_ptr(projection));
-	
+
 	//좌표축 그리기
 	modelLocation = glGetUniformLocation(shaderID, "modelTransform");
 	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(axes.transformation));
@@ -187,7 +187,7 @@ GLvoid drawScene()
 	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, mapFloor.get_ptr_transformation());
 	glBindVertexArray(vao_floor);
 	glDrawArrays(GL_TRIANGLES, 0, mapFloor.get_vertex().size() / 3);
-		
+
 
 	for (int i = 0; i < mountain::cNum; ++i) {
 		for (int j = 0; j < mountain::rNum; ++j) {
@@ -197,25 +197,25 @@ GLvoid drawScene()
 			}
 		}
 	}
-	
+
 	//미니맵에서만 플레이어 객체 보임.
 	//mainObject->draw(modelLocation);
 	test_pac->draw(modelLocation);
 
-	glViewport(window_w/8, window_h/8, 300, 300);
+	glViewport(window_w / 8, window_h / 8, 300, 300);
 
 	glm::vec3 Player_location = mainObject->get_pos();
 	glm::vec3 minimap_cameraUp =
 		glm::rotate(glm::mat4(1.0f), glm::radians(yaw), glm::vec3(0.0f, 1.0f, 0.0f)) *
 		glm::vec4(0.0f, 0.0f, -1.0f, 1.0f);
 	tVCamra_eye = glm::vec3(Player_location.x, 500.0f, Player_location.z);
-	topViewCamera = glm::lookAt( tVCamra_eye,
-		Player_location + glm::vec3(0.0f, -1.0f, 0.0f),	minimap_cameraUp);
+	topViewCamera = glm::lookAt(tVCamra_eye,
+		Player_location + glm::vec3(0.0f, -1.0f, 0.0f), minimap_cameraUp);
 
 	glDisable(GL_DEPTH_TEST);
 
 	glUniformMatrix4fv(projLocation, 1, GL_FALSE, glm::value_ptr(projection));
-	if(STATE::minimap_perspective)
+	if (STATE::minimap_perspective)
 		glUniformMatrix4fv(projLocation, 1, GL_FALSE, glm::value_ptr(mini_projection));
 
 	glUniformMatrix4fv(viewLocation, 1, GL_FALSE, glm::value_ptr(topViewCamera));
@@ -257,7 +257,7 @@ GLvoid TimeEvent(int value)
 	}*/
 
 	if (test_pac->get_col() != 0 || test_pac->get_row() != 0)
-		test_pac->set_path(mountain_list, 0, 0);
+		test_pac->set_path(mountain_list, *mainObject);
 	test_pac->move();
 
 	mainObject->move(mountain_list, jewel);
@@ -287,12 +287,12 @@ GLvoid KeyUpEvent(unsigned char key, int x, int y)
 
 GLvoid spKeyEvent(int key, int x, int y)
 {
-	
+
 }
 
 GLvoid spKeyUpEvent(int key, int x, int y)
 {
-	
+
 }
 
 GLvoid GLTranspose(GLclampf* x, GLclampf* y)
@@ -306,7 +306,7 @@ GLvoid GLTranspose(GLclampf* x, GLclampf* y)
 
 GLvoid passiveMouseMotion(int x, int y)
 {
-	
+
 	GLfloat xPos = (GLfloat)x / ((GLfloat)window_w / 2), yPos = (GLfloat)y / ((GLfloat)window_h / 2);
 	GLTranspose(&xPos, &yPos);
 
@@ -326,7 +326,7 @@ GLvoid passiveMouseMotion(int x, int y)
 		firstMouse = false;
 		return;
 	}
-	
+
 	GLfloat xoffset = xPos - lastX;
 	GLfloat yoffset = lastY - yPos;
 	lastX = xPos;
@@ -338,7 +338,7 @@ GLvoid passiveMouseMotion(int x, int y)
 
 	yaw += xoffset;
 	pitch += yoffset;
-	
+
 	if (yaw < 0.0f) yaw += 360.0f;
 	if (yaw > 360.0f) yaw -= 360.0f;
 
@@ -362,7 +362,7 @@ void initBuffer()
 	glGenBuffers(2, vbo_axes);
 
 	glBindVertexArray(vao);
-	
+
 	glBindBuffer(GL_ARRAY_BUFFER, vbo_axes[1]);
 	glBufferData(GL_ARRAY_BUFFER, axes.axes_color.size() * sizeof(GLfloat), axes.axes_color.data(), GL_STATIC_DRAW);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
@@ -403,7 +403,5 @@ void initBuffer()
 	glBufferData(GL_ARRAY_BUFFER, Hexahedron.outvertex.size() * 3 * 4, Hexahedron.outvertex.data(), GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(0);
-
-
 
 }

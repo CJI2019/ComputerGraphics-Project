@@ -8,6 +8,7 @@ private:
 	GLfloat size, angle;
 	int respawn_time;
 public:
+	static glm::mat4 rotate_trans;
 	static objRead read_obj;
 	static unsigned int vao;
 	static unsigned int vbo[2];
@@ -33,16 +34,19 @@ public:
 	GLvoid update();
 };
 
-objRead Jewel::read_obj; 
+glm::mat4 Jewel::rotate_trans = glm::mat4(1.0f);
+objRead Jewel::read_obj;
 unsigned int Jewel::vao = 0;
 unsigned int Jewel::vbo[2];
 
 Jewel::Jewel()
 {
+	if (Jewel::rotate_trans == glm::mat4(1.0f))
+		Jewel::rotate_trans = glm::rotate(Jewel::rotate_trans, glm::radians(1.0f), { 0.0f,1.0f,0.0f });
 	pos = glm::vec3{ 0.0f };
 	//scale 한 크기의 절반
 	size = 2.5f; angle = 0.0f;
-	transformation = glm::mat4{ 1.0f };
+	transformation = glm::mat4(1.0f);
 	respawn_time = 0;
 
 	if (Jewel::vao == 0) {
@@ -75,7 +79,7 @@ glm::vec3 Jewel::get_pos() { return pos; }
 GLfloat Jewel::get_size() { return size; }
 
 
-GLvoid Jewel::set_pos(glm::vec3 m_pos,GLboolean m_state)
+GLvoid Jewel::set_pos(glm::vec3 m_pos, GLboolean m_state)
 {
 	if (!m_state) {
 		maze_state = false; status_draw = false;
@@ -92,15 +96,18 @@ GLvoid Jewel::set_pos(glm::vec3 m_pos,GLboolean m_state)
 	//transformation = glm::scale(transformation, glm::vec3(5.0f, 5.0f, 5.0f));
 }
 
+
 GLvoid Jewel::update()
 {
-	angle += 1;
-	transformation = glm::mat4(1.0f);
-	transformation = glm::translate(transformation, pos);
-	transformation = glm::rotate(transformation, glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
-	if (size == 5.0f) {
+	//angle += 1;
+	//transformation = glm::mat4(1.0f);
+	//transformation = glm::translate(transformation, pos);
+	//transformation = glm::rotate(transformation, glm::radians(1.0f), { 0.0f, pos.y, 0.0f });
+	transformation = transformation * Jewel::rotate_trans;
+	/*if (size == 5.0f) {
 		transformation = glm::scale(transformation, glm::vec3(2.0f, 2.0f, 2.0f));
-	}
+	}*/
+
 }
 
 
@@ -128,7 +135,7 @@ GLboolean Jewel::collision(GLfloat* move_obj_bb)
 	if (!maze_state || !status_draw) return false;
 
 	GLfloat* Jewel_bb = get_bb();
-	
+
 	if (Jewel_bb[0] > move_obj_bb[1]) return false;
 	if (Jewel_bb[1] < move_obj_bb[0]) return false;
 	if (Jewel_bb[2] > move_obj_bb[3]) return false;

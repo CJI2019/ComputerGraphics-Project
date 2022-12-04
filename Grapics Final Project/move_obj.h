@@ -10,7 +10,7 @@ class move_obj
 private:
 	GLuint vao;
 	GLuint vbo[2];
-		
+
 	std::vector<GLfloat> vertex;
 	std::vector<GLfloat> color;
 	glm::mat4 transformation;
@@ -26,6 +26,8 @@ private:
 	glm::mat4 camera;
 	glm::vec3 camera_eye;
 
+	int row;
+	int col;
 
 public:
 	move_obj()
@@ -73,6 +75,8 @@ public:
 	glm::vec3 get_look() const { return look; }
 	glm::mat4 get_camera() const { return camera; }
 	glm::vec3 get_pos() const { return pos; }
+	int get_col() const { return col; }
+	int get_row() const { return row; }
 	//glm::vec3 get_dir() const { return direction; }
 
 
@@ -163,7 +167,7 @@ GLvoid move_obj::move(const std::vector<std::vector<mountain>>& mountainList, Je
 
 	for (int i = 0; i < mountain::cNum; ++i)
 	{
-		for (int j = 0; j < mountain::rNum; ++j) 
+		for (int j = 0; j < mountain::rNum; ++j)
 		{
 			if (collide(mountainList[i][j])) {
 				pos.x = oldPos.x;
@@ -195,16 +199,19 @@ GLvoid move_obj::move(const std::vector<std::vector<mountain>>& mountainList, Je
 				jewel[i][j].status_draw = false;
 			}
 			jewel[i][j].respawn();
-			//jewel[i][j].update();
+			jewel[i][j].update();
 		}
 	}
+
+	col = (pos.z + 500) / 25;
+	row = (pos.x + 500) / 25;
 
 	camera_eye = glm::vec3(pos.x, pos.y, pos.z);
 
 	glm::vec3 temp(0.0f, 0.0f, 1.0f);
 	transformation = glm::mat4(1.0f);
 	transformation = glm::translate(transformation, pos);
-	
+
 	camera = glm::mat4(1.0f);
 	camera = glm::lookAt(camera_eye, camera_eye + look, glm::vec3(0.0f, 1.0f, 0.0f));
 }
@@ -212,7 +219,7 @@ GLvoid move_obj::move(const std::vector<std::vector<mountain>>& mountainList, Je
 GLfloat* move_obj::get_bb()
 {
 	GLfloat invisiblepart = 10.0f;//몸집을 카메라에 보이는 것 보다 작은 부위를 충돌 시킴
-	GLfloat bb[4] = { 
+	GLfloat bb[4] = {
 		pos.x - mountain::width / invisiblepart,
 		pos.x + mountain::width / invisiblepart,
 		pos.z - mountain::length / invisiblepart,
