@@ -11,13 +11,17 @@ public:
 	static unsigned int vao;
 	static unsigned int vbo[2];
 
-	GLboolean cover_maze = false;
+	//true �� �̷���. false �� ��
+	GLboolean maze_state = true;
+
+	//true �� �׷��� false �� �ȱ׷��� (�Ծ����� �ȸԾ�������)
+	GLboolean status_draw = true;
 
 	Jewel();
 	~Jewel();
 	glm::vec3 get_pos();
 	GLfloat get_size();
-	GLvoid set_pos(GLfloat x,GLfloat y,GLfloat z);
+	GLvoid set_pos(glm::vec3 m_pos, GLboolean m_state);
 
 	GLvoid draw(unsigned int& modelLocation);
 };
@@ -62,9 +66,14 @@ glm::vec3 Jewel::get_pos() { return pos; }
 GLfloat Jewel::get_size() { return size; }
 
 
-GLvoid Jewel::set_pos(GLfloat x, GLfloat y, GLfloat z)
+GLvoid Jewel::set_pos(glm::vec3 m_pos,GLboolean m_state)
 {
-	pos = { x, y + 5.0f * 1.0f, z };
+	if (!m_state) {
+		maze_state = false; status_draw = false;
+		return;
+	}
+
+	pos = { m_pos.x, m_pos.y + 5.0f, m_pos.z };
 	transformation = glm::mat4(1.0f);
 	transformation = glm::translate(transformation, pos);
 	//transformation = glm::scale(transformation, glm::vec3(5.0f, 5.0f, 5.0f));
