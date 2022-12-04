@@ -3,6 +3,7 @@
 #include "cuboid.h"
 #include "mountain.h"
 #include "state.h"
+#include "Jewel.h"
 
 class move_obj
 {
@@ -77,7 +78,7 @@ public:
 
 	GLvoid draw(unsigned int& modelLocation);
 	GLvoid reveal();
-	GLvoid move(const std::vector<std::vector<mountain>>& mountainList);
+	GLvoid move(const std::vector<std::vector<mountain>>& mountainList, Jewel** jewel);
 	GLboolean collide(const mountain& mountain_obj);
 	GLfloat* get_bb();
 
@@ -145,7 +146,7 @@ GLvoid move_obj::reveal()
 	state = true;
 }
 
-GLvoid move_obj::move(const std::vector<std::vector<mountain>>& mountainList)
+GLvoid move_obj::move(const std::vector<std::vector<mountain>>& mountainList, Jewel** jewel)
 {
 	direction[0] = -(glm::normalize(glm::cross(look, glm::vec3(0.0f, 1.0f, 0.0f)))); //left
 	direction[1] = glm::normalize(glm::cross(look, glm::vec3(0.0f, 1.0f, 0.0f))); //right
@@ -190,6 +191,11 @@ GLvoid move_obj::move(const std::vector<std::vector<mountain>>& mountainList)
 					}
 				}
 			}
+			if (jewel[i][j].collision(get_bb())) {
+				jewel[i][j].status_draw = false;
+			}
+			jewel[i][j].respawn();
+			//jewel[i][j].update();
 		}
 	}
 

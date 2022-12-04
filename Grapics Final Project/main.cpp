@@ -1,5 +1,6 @@
 #define _USE_MATH_DEFINES
 #define _CRT_SECURE_NO_WARNINGS
+
 #include "read_Obj.h"
 #include "axes.h"
 #include "cuboid.h"
@@ -29,8 +30,6 @@ void initBuffer();
 const GLint window_w = 1000, window_h = 700;
 GLfloat rColor = 0.0f, gColor = 0.0f, bColor = 0.0f;
 GLfloat tv_rColor = 1.0f, tv_gColor = 1.0f, tv_bColor = 1.0f;
-
-
 
 unsigned int modelLocation;
 unsigned int viewLocation;
@@ -118,7 +117,8 @@ int main(int argc, char** argv)
 	}
 	for (int i = 0; i < mountain::rNum; ++i) {
 		for (int j = 0; j < mountain::cNum; ++j) {
-			jewel[i][j].set_pos(mountain_list[i][j].pos.x, mountain_list[i][j].pos.y, mountain_list[i][j].pos.z);
+			jewel[i][j].set_pos(mountain_list[i][j].pos, mountain_list[i][j].maze_state);
+			
 		}
 	}
 
@@ -192,7 +192,7 @@ GLvoid drawScene()
 	for (int i = 0; i < mountain::cNum; ++i) {
 		for (int j = 0; j < mountain::rNum; ++j) {
 			mountain_list[i][j].drawMaze(modelLocation);
-			if (!jewel[i][j].cover_maze) {
+			if (jewel[i][j].status_draw) {
 				jewel[i][j].draw(modelLocation);
 			}
 		}
@@ -230,7 +230,7 @@ GLvoid drawScene()
 		for (int i = 0; i < mountain::cNum; ++i) {
 			for (int j = 0; j < mountain::rNum; ++j) {
 				mountain_list[i][j].drawMaze(modelLocation);
-				if (!jewel[i][j].cover_maze) {
+				if (jewel[i][j].status_draw) {
 					jewel[i][j].draw(modelLocation);
 				}
 			}
@@ -260,7 +260,7 @@ GLvoid TimeEvent(int value)
 		test_pac->set_path(mountain_list, 0, 0);
 	test_pac->move();
 
-	mainObject->move(mountain_list);
+	mainObject->move(mountain_list, jewel);
 
 	glutPostRedisplay();
 	glutTimerFunc(10, TimeEvent, 0);
