@@ -12,10 +12,10 @@ public:
 	static unsigned int vao;
 	static unsigned int vbo[2];
 
-	//true ï¿½ï¿½ ï¿½Ì·ï¿½ï¿½ï¿½. false ï¿½ï¿½ ï¿½ï¿½
+	//true ¸é ¹Ì·ÎÀÓ. false ¸é º®
 	GLboolean maze_state = true;
 
-	//true ï¿½ï¿½ ï¿½×·ï¿½ï¿½ï¿½ false ï¿½ï¿½ ï¿½È±×·ï¿½ï¿½ï¿½ (ï¿½Ô¾ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½È¸Ô¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½)
+	//true ¸é ±×·ÁÁü false ¸é ¾È±×·ÁÁü (¸Ô¾ú´ÂÁö ¾È¸Ô¾úÁö´ÂÁö)
 	GLboolean status_draw = true;
 
 	Jewel();
@@ -30,6 +30,7 @@ public:
 	GLvoid respawn();
 	GLvoid generate_big_jewel();
 	GLvoid delete_big_jewel();
+	GLvoid update();
 };
 
 objRead Jewel::read_obj; 
@@ -39,7 +40,7 @@ unsigned int Jewel::vbo[2];
 Jewel::Jewel()
 {
 	pos = glm::vec3{ 0.0f };
-	//scale ï¿½ï¿½ Å©ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+	//scale ÇÑ Å©±âÀÇ Àý¹Ý
 	size = 2.5f; angle = 0.0f;
 	transformation = glm::mat4{ 1.0f };
 	respawn_time = 0;
@@ -91,6 +92,18 @@ GLvoid Jewel::set_pos(glm::vec3 m_pos,GLboolean m_state)
 	//transformation = glm::scale(transformation, glm::vec3(5.0f, 5.0f, 5.0f));
 }
 
+GLvoid Jewel::update()
+{
+	angle += 1;
+	transformation = glm::mat4(1.0f);
+	transformation = glm::translate(transformation, pos);
+	transformation = glm::rotate(transformation, glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
+	if (size == 5.0f) {
+		transformation = glm::scale(transformation, glm::vec3(2.0f, 2.0f, 2.0f));
+	}
+}
+
+
 GLvoid Jewel::draw(unsigned int& modelLocation)
 {
 	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(transformation));
@@ -121,7 +134,7 @@ GLboolean Jewel::collision(GLfloat* move_obj_bb)
 	if (Jewel_bb[2] > move_obj_bb[3]) return false;
 	if (Jewel_bb[3] < move_obj_bb[2]) return false;
 
-	if (size == 5.0f) { // ï¿½Å´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ìºï¿½Æ® Ã³ï¿½ï¿½ ï¿½Ï¸ï¿½ ï¿½ï¿½.
+	if (size == 5.0f) { // °Å´ë º¸¼®À» ¸ÔÀ»¶§ ¸ó½ºÅÍ ÀÌº¥Æ® Ã³¸® ÇÏ¸é µÊ.
 		delete_big_jewel();
 	}
 	return true;
@@ -134,7 +147,7 @@ GLvoid Jewel::respawn()
 
 	respawn_time += 1;
 
-	if (respawn_time == 2000) { //20ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+	if (respawn_time == 2000) { //20ÃÊ °¡ Áö³ª¸é »ý¼º
 		status_draw = true;
 	}
 }
