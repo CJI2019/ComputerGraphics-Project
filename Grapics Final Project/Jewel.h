@@ -24,6 +24,8 @@ public:
 	GLvoid set_pos(glm::vec3 m_pos, GLboolean m_state);
 
 	GLvoid draw(unsigned int& modelLocation);
+	GLfloat* get_bb();
+	GLboolean collision(GLfloat* move_obj_bb);
 };
 
 objRead Jewel::read_obj; 
@@ -84,5 +86,34 @@ GLvoid Jewel::draw(unsigned int& modelLocation)
 	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(transformation));
 	glBindVertexArray(Jewel::vao);
 	glDrawArrays(GL_TRIANGLES, 0, Jewel::read_obj.outvertex.size());
+}
+
+GLfloat* Jewel::get_bb()
+{
+	GLfloat bb[4] = {
+		pos.x - size, //left
+		pos.x + size, //right
+		pos.z - size, //bottom
+		pos.z + size  //top
+	};
+
+	return bb;
+}
+
+GLboolean Jewel::collision(GLfloat* move_obj_bb)
+{
+	if (!maze_state || !status_draw) return false;
+
+	GLfloat* Jewel_bb = get_bb();
+	
+	if (Jewel_bb[0] > move_obj_bb[1]) return false;
+	if (Jewel_bb[1] < move_obj_bb[0]) return false;
+	if (Jewel_bb[2] > move_obj_bb[3]) return false;
+	if (Jewel_bb[3] < move_obj_bb[2]) return false;
+
+	if (size == 5.0f) { // �Ŵ� ������ ������ ���� �̺�Ʈ ó�� �ϸ� ��.
+		delete_big_jewel();
+	}
+	return true;
 }
 
