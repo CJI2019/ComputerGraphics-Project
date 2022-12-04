@@ -73,8 +73,8 @@ objRead Hexahedron;
 
 Jewel** jewel;
 
-//chase_pac_man* test_pac;
-wander_pac_man* test_pac;
+chase_pac_man* test_chase_pac;
+wander_pac_man* test_wander_pac;
 
 int main(int argc, char** argv)
 {
@@ -109,8 +109,8 @@ int main(int argc, char** argv)
 		}
 	}
 
-	//test_pac = new chase_pac_man();
-	test_pac = new wander_pac_man();
+	test_chase_pac = new chase_pac_man();
+	test_wander_pac = new wander_pac_man();
 	mainObject = new move_obj();
 
 	set_maze(mountainMaze, mountain_list);
@@ -204,7 +204,8 @@ GLvoid drawScene()
 	
 	//미니맵에서만 플레이어 객체 보임.
 	//mainObject->draw(modelLocation);
-	test_pac->draw(modelLocation);
+	test_wander_pac->draw(modelLocation);
+	test_chase_pac->draw(modelLocation);
 
 	glViewport(window_w/8, window_h/8, 300, 300);
 
@@ -230,7 +231,8 @@ GLvoid drawScene()
 		glDrawArrays(GL_TRIANGLES, 0, mapFloor.get_vertex().size() / 3);
 
 		mainObject->draw(modelLocation);
-		test_pac->draw(modelLocation);
+		test_wander_pac->draw(modelLocation);
+		test_chase_pac->draw(modelLocation);
 		for (int i = 0; i < mountain::cNum; ++i) {
 			for (int j = 0; j < mountain::rNum; ++j) {
 				mountain_list[i][j].drawMaze(modelLocation);
@@ -251,12 +253,12 @@ GLvoid Reshape(int w, int h)
 
 GLvoid TimeEvent(int value)
 {
-	/*if (test_pac->get_col() != 0 || test_pac->get_row() != 0)
-		test_pac->set_path(mountain_list, *mainObject);
-	test_pac->move();*/
+	if (test_chase_pac->get_col() != 0 || test_chase_pac->get_row() != 0)
+		test_chase_pac->set_path(mountain_list, *mainObject);
+	test_chase_pac->move();
 
-	test_pac->set_path(mountain_list);
-	test_pac->move();
+	test_wander_pac->set_path(mountain_list);
+	test_wander_pac->move();
 
 	mainObject->move(mountain_list);
 
