@@ -199,12 +199,12 @@ GLvoid move_obj::move(const std::vector<std::vector<mountain>>& mountainList, Je
 				jewel[i][j].status_draw = false;
 			}
 			jewel[i][j].respawn();
-			jewel[i][j].update();
+			//jewel[i][j].update();
 		}
 	}
 
-	col = (pos.z + 500) / 25;
-	row = (pos.x + 500) / 25;
+	col = (pos.z + 500) / 40;
+	row = (pos.x + 500) / 40;
 
 	camera_eye = glm::vec3(pos.x, pos.y, pos.z);
 

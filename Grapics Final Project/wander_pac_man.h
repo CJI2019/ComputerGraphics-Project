@@ -66,13 +66,13 @@ GLvoid wander_pac_man::move()
 
 	if (next_col == 0 && next_row == -1)
 	{
-		if (pos.z < 12.5 + col * 25 - 500)
+		if (pos.z < 20 + col * 40 - 500)
 		{
 			pos.z += speed;
 			look[0] = 0;
 			look[1] = 1;
 		}
-		else if (pos.z > 12.5 + col * 25 - 500)
+		else if (pos.z > 20 + col * 40 - 500)
 		{
 			pos.z -= speed;
 			look[0] = 0;
@@ -87,13 +87,13 @@ GLvoid wander_pac_man::move()
 	}
 	else if (next_col == 0 && next_row == 1)
 	{
-		if (pos.z < 12.5 + col * 25 - 500)
+		if (pos.z < 20 + col * 40 - 500)
 		{
 			look[0] = 0;
 			look[1] = 1;
 			pos.z += speed;
 		}
-		else if (pos.z > 12.5 + col * 25 - 500)
+		else if (pos.z > 20 + col * 40 - 500)
 		{
 			look[0] = 0;
 			look[1] = -1;
@@ -108,13 +108,13 @@ GLvoid wander_pac_man::move()
 	}
 	else if (next_col == -1 && next_row == 0)
 	{
-		if (pos.x < 12.5 + row * 25 - 500)
+		if (pos.x < 20 + row * 40 - 500)
 		{
 			look[0] = 1;
 			look[1] = 0;
 			pos.x += speed;
 		}
-		else if (pos.x > 12.5 + row * 25 - 500)
+		else if (pos.x > 20 + row * 40 - 500)
 		{
 			look[0] = -1;
 			look[1] = 0;
@@ -129,13 +129,13 @@ GLvoid wander_pac_man::move()
 	}
 	else if (next_col == 1 && next_row == 0)
 	{
-		if (pos.x < 12.5 + row * 25 - 500)
+		if (pos.x < 20 + row * 40 - 500)
 		{
 			look[0] = 1;
 			look[1] = 0;
 			pos.x += speed;
 		}
-		else if (pos.x > 12.5 + row * 25 - 500)
+		else if (pos.x > 20 + row * 40 - 500)
 		{
 			look[0] = -1;
 			look[1] = 0;
@@ -149,8 +149,8 @@ GLvoid wander_pac_man::move()
 		}
 	}
 
-	col = (pos.z + 500) / 25;
-	row = (pos.x + 500) / 25;
+	col = (pos.z + 500) / 40;
+	row = (pos.x + 500) / 40;
 
 	transformation = glm::mat4(1.0f);
 	transformation = glm::translate(transformation, pos);

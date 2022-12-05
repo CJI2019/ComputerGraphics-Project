@@ -40,18 +40,18 @@ pac_man::pac_man()
 	makeCuboid(vertex, 10.0, 10.0f);
 	setCol(color, 0.0f, 1.0f, 0.5f);
 
-	col = 39;
-	row = 39;
+	col = 24;
+	row = 24;
 	old_col = col;
 	old_row = row;
 
-	pos.x = 487.5;
+	pos.x = 480.0f;
 	pos.y = 0.0f;
-	pos.z = 487.5;
+	pos.z = 480.0f;
 
 	transformation = glm::mat4(1.0f);
 	transformation = glm::translate(transformation, pos);
-	speed = 1.25f;
+	speed = 1.00f;
 
 	glGenVertexArrays(1, &vao);
 	glGenBuffers(1, &vbo_vertex);

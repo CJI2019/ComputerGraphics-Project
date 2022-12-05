@@ -88,8 +88,8 @@ int main(int argc, char** argv)
 	glewInit();
 	glutSetCursor(GLUT_CURSOR_NONE); // 마우스 커서를 안보이게 한다.
 
-	mountain::rNum = 40;
-	mountain::cNum = 40;
+	mountain::rNum = 25;
+	mountain::cNum = 25;
 	mapFloor.set_floor(mountain::rNum, mountain::cNum);
 	std::cout << 'z';
 
