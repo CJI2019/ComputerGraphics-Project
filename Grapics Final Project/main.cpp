@@ -205,7 +205,7 @@ GLvoid drawScene()
 	//미니맵에서만 플레이어 객체 보임.
 	//mainObject->draw(modelLocation);
 	test_wander_pac->draw(modelLocation);
-	test_chase_pac->draw(modelLocation);
+	//test_chase_pac->draw(modelLocation);
 
 	glViewport(window_w/8, window_h/8, 300, 300);
 
@@ -232,7 +232,7 @@ GLvoid drawScene()
 
 		mainObject->draw(modelLocation);
 		test_wander_pac->draw(modelLocation);
-		test_chase_pac->draw(modelLocation);
+		//test_chase_pac->draw(modelLocation);
 		for (int i = 0; i < mountain::cNum; ++i) {
 			for (int j = 0; j < mountain::rNum; ++j) {
 				mountain_list[i][j].drawMaze(modelLocation);
@@ -253,14 +253,30 @@ GLvoid Reshape(int w, int h)
 
 GLvoid TimeEvent(int value)
 {
+	mainObject->move(mountain_list);
+
 	if (test_chase_pac->get_col() != 0 || test_chase_pac->get_row() != 0)
 		test_chase_pac->set_path(mountain_list, *mainObject);
 	test_chase_pac->move();
 
-	test_wander_pac->set_path(mountain_list);
+	
+	if (!test_wander_pac->set_path(mountain_list, *mainObject))
+	{
+		if (test_wander_pac->get_miss_time() == 0)
+			test_wander_pac->set_path(mountain_list);
+		else
+		{
+			test_wander_pac->miss_time_gone();
+		}
+	}
+	else
+	{
+		test_wander_pac->set_miss_time(100);
+	}
+	test_wander_pac->print_time();
 	test_wander_pac->move();
 
-	mainObject->move(mountain_list);
+
 
 	glutPostRedisplay();
 	glutTimerFunc(10, TimeEvent, 0);

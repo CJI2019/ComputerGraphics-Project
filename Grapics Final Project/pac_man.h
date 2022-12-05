@@ -18,6 +18,7 @@ protected:
 
 	int col;
 	int row;
+	int old_col, old_row;
 
 	glm::vec3 pos;
 	GLfloat speed;
@@ -41,6 +42,8 @@ pac_man::pac_man()
 
 	col = 39;
 	row = 39;
+	old_col = col;
+	old_row = row;
 
 	pos.x = 487.5;
 	pos.y = 0.0f;
