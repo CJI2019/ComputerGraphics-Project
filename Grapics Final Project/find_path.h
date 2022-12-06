@@ -4,7 +4,6 @@
 #include <queue>
 #include <list>
 
-
 class path
 {
 private:
@@ -22,7 +21,7 @@ public:
 	int get_col()const { return col; }
 	int get_row()const { return row; }
 	path* get_prev()const { return prev; }
-
+	
 
 	GLvoid set_wall(const bool& i_bool) { wall = i_bool; }
 	GLvoid set_visit() { visit = true; }
@@ -31,17 +30,15 @@ public:
 	GLvoid set_prev(path* i_prev_path) { prev = i_prev_path; }
 };
 
-bool is_path(const path path_matrix[][40], int dist_col, int dist_row);
+bool is_path(const path path_matrix[][25], int dist_col, int dist_row);
 
 std::vector<int> find_path(const std::vector<std::vector<mountain>>& m_list, const int& start_col, const int& start_row, const int& target_col, const int& target_row)
 {
-	//std::cout << start_col << ' ' << start_row << std::endl;
+	path path_matrix[25][25];
 
-	path path_matrix[40][40];
-
-	for (int i = 0; i < 40; ++i)
+	for (int i = 0; i < 25; ++i)
 	{
-		for (int j = 0; j < 40; ++j)
+		for (int j = 0; j < 25; ++j)
 		{
 			path_matrix[i][j].set_wall(m_list[i][j].maze_state);
 			path_matrix[i][j].set_col(i);
@@ -104,12 +101,13 @@ std::vector<int> find_path(const std::vector<std::vector<mountain>>& m_list, con
 		std::vector<int> last = { final[final.size() - 1].get_col(),final[final.size() - 1].get_row() };
 		return last;
 	}
+	
 }
 
-bool is_path(const path path_matrix[][40], int dist_col, int dist_row)
+bool is_path(const path path_matrix[][25], int dist_col, int dist_row)
 {
 	// maze ¿µ¿ªÀ» ¹þ¾î³ª¸é ¾ÈµÊ.
-	if (dist_row < 0 || dist_col < 0 || dist_row > 39 || dist_col > 39) {
+	if (dist_row < 0 || dist_col < 0 || dist_row > 24 || dist_col > 24) {
 		return false;
 	}
 

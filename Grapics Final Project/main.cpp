@@ -1,6 +1,5 @@
 #define _USE_MATH_DEFINES
 #define _CRT_SECURE_NO_WARNINGS
-
 #include "read_Obj.h"
 #include "axes.h"
 #include "cuboid.h"
@@ -12,6 +11,7 @@
 #include "Jewel.h"
 #include "pac_man.h"
 #include "chase_pac_man.h"
+#include "wander_pac_man.h"
 #include "find_path.h"
 
 GLvoid drawScene();
@@ -66,12 +66,10 @@ move_obj* mainObject;
 GLboolean set_cusor = true, firstMouse = false;
 GLfloat lastX, lastY, yaw = -90.0f, pitch = 0.0f;
 
-
-objRead Hexahedron;
-
 Jewel** jewel;
 
-chase_pac_man* test_pac;
+chase_pac_man* test_chase_pac;
+wander_pac_man* test_wander_pac;
 
 int main(int argc, char** argv)
 {
@@ -85,12 +83,12 @@ int main(int argc, char** argv)
 	glewInit();
 	glutSetCursor(GLUT_CURSOR_NONE); // 마우스 커서를 안보이게 한다.
 
-	mountain::rNum = 40;
-	mountain::cNum = 40;
+	mountain::rNum = 25;
+	mountain::cNum = 25;
 	mapFloor.set_floor(mountain::rNum, mountain::cNum);
 
 	mountainMaze.initialize((mountain::rNum + 1) / 2, (mountain::cNum + 1) / 2);
-	while (!maze::completeGenerate)
+	while(!maze::completeGenerate)
 		mountainMaze.generator();
 
 	mountain::length = mapFloor.get_length();
@@ -98,30 +96,30 @@ int main(int argc, char** argv)
 
 	mountain_list = std::vector<std::vector<mountain>>(mountain::cNum);
 	for (int i = 0; i < mountain::cNum; ++i)
-	{
+	{		
 		for (int j = 0; j < mountain::rNum; ++j)
 		{
 			mountain_list[i].push_back(mountain(j, i));
 		}
 	}
 
-	test_pac = new chase_pac_man();
+	test_chase_pac = new chase_pac_man();
+	test_wander_pac = new wander_pac_man();
 	mainObject = new move_obj();
 
 	set_maze(mountainMaze, mountain_list);
 	mainObject->reveal();
 
-	jewel = new Jewel * [mountain::rNum];
+	jewel = new Jewel*[mountain::rNum];
 	for (int i = 0; i < mountain::rNum; ++i) {
 		jewel[i] = new Jewel[mountain::cNum];
 	}
 	for (int i = 0; i < mountain::rNum; ++i) {
 		for (int j = 0; j < mountain::cNum; ++j) {
 			jewel[i][j].set_pos(mountain_list[i][j].pos, mountain_list[i][j].maze_state);
-
 		}
 	}
-
+	
 	//세이더 읽어와서 세이더 프로그램 만들기
 	shaderID = make_shaderProgram();	//세이더 프로그램 만들기
 	initBuffer();
@@ -145,7 +143,7 @@ int main(int argc, char** argv)
 
 
 	camera = glm::lookAt(camera_eye, camera_look, glm::vec3(0.0f, 1.0f, 0.0f));
-
+	
 	projection = glm::mat4(1.0f);
 	//근평면은 포함이고 원평면은 포함X
 	projection = glm::perspective(glm::radians(60.0f), 1.0f, 0.1f, 3000.0f);
@@ -162,9 +160,9 @@ GLvoid drawScene()
 	//glEnable(GL_CULL_FACE);
 	glClearColor(rColor, gColor, bColor, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+	
 	//랜더링 파이프라인에 세이더 불러오기
-
+	
 	glUseProgram(shaderID);
 	glViewport(0, 0, window_w, window_h);
 
@@ -176,7 +174,7 @@ GLvoid drawScene()
 
 	//투영 변환 적용
 	glUniformMatrix4fv(projLocation, 1, GL_FALSE, glm::value_ptr(projection));
-
+	
 	//좌표축 그리기
 	modelLocation = glGetUniformLocation(shaderID, "modelTransform");
 	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(axes.transformation));
@@ -187,7 +185,9 @@ GLvoid drawScene()
 	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, mapFloor.get_ptr_transformation());
 	glBindVertexArray(vao_floor);
 	glDrawArrays(GL_TRIANGLES, 0, mapFloor.get_vertex().size() / 3);
-
+		
+	test_wander_pac->draw(modelLocation);
+	test_chase_pac->draw(modelLocation);
 
 	for (int i = 0; i < mountain::cNum; ++i) {
 		for (int j = 0; j < mountain::rNum; ++j) {
@@ -197,25 +197,25 @@ GLvoid drawScene()
 			}
 		}
 	}
-
+	
 	//미니맵에서만 플레이어 객체 보임.
 	//mainObject->draw(modelLocation);
-	test_pac->draw(modelLocation);
 
-	glViewport(window_w / 8, window_h / 8, 300, 300);
+
+	glViewport(window_w/8, window_h/8, 300, 300);
 
 	glm::vec3 Player_location = mainObject->get_pos();
 	glm::vec3 minimap_cameraUp =
 		glm::rotate(glm::mat4(1.0f), glm::radians(yaw), glm::vec3(0.0f, 1.0f, 0.0f)) *
 		glm::vec4(0.0f, 0.0f, -1.0f, 1.0f);
-	tVCamra_eye = glm::vec3(Player_location.x, 500.0f, Player_location.z);
-	topViewCamera = glm::lookAt(tVCamra_eye,
-		Player_location + glm::vec3(0.0f, -1.0f, 0.0f), minimap_cameraUp);
+	tVCamra_eye = glm::vec3(Player_location.x, 1000.0f, Player_location.z);
+	topViewCamera = glm::lookAt( tVCamra_eye,
+		Player_location + glm::vec3(0.0f, -1.0f, 0.0f),	minimap_cameraUp);
 
 	glDisable(GL_DEPTH_TEST);
 
 	glUniformMatrix4fv(projLocation, 1, GL_FALSE, glm::value_ptr(projection));
-	if (STATE::minimap_perspective)
+	if(STATE::minimap_perspective)
 		glUniformMatrix4fv(projLocation, 1, GL_FALSE, glm::value_ptr(mini_projection));
 
 	glUniformMatrix4fv(viewLocation, 1, GL_FALSE, glm::value_ptr(topViewCamera));
@@ -226,7 +226,8 @@ GLvoid drawScene()
 		glDrawArrays(GL_TRIANGLES, 0, mapFloor.get_vertex().size() / 3);
 
 		mainObject->draw(modelLocation);
-		test_pac->draw(modelLocation);
+		test_wander_pac->draw(modelLocation);
+		test_chase_pac->draw(modelLocation);
 		for (int i = 0; i < mountain::cNum; ++i) {
 			for (int j = 0; j < mountain::rNum; ++j) {
 				mountain_list[i][j].drawMaze(modelLocation);
@@ -247,20 +248,30 @@ GLvoid Reshape(int w, int h)
 
 GLvoid TimeEvent(int value)
 {
-	/*if (!mountain::initAni)
-	{
-		for (int i = 0; i < mountain::cNum; ++i)
-		{
-			for (int j = 0; j < mountain::rNum; ++j)
-				mountain_list[i][j].init_animation();
-		}
-	}*/
-
-	if (test_pac->get_col() != 0 || test_pac->get_row() != 0)
-		test_pac->set_path(mountain_list, *mainObject);
-	test_pac->move();
-
 	mainObject->move(mountain_list, jewel);
+
+	if (test_chase_pac->get_col() != 0 || test_chase_pac->get_row() != 0)
+		test_chase_pac->set_path(mountain_list, *mainObject);
+	test_chase_pac->move();
+
+	
+	if (!test_wander_pac->set_path(mountain_list, *mainObject))
+	{
+		if (test_wander_pac->get_miss_time() == 0)
+			test_wander_pac->set_path(mountain_list);
+		else
+		{
+			test_wander_pac->miss_time_gone();
+		}
+	}
+	else
+	{
+		test_wander_pac->set_miss_time(100);
+	}
+	//test_wander_pac->print_time();
+	test_wander_pac->move();
+
+
 
 	glutPostRedisplay();
 	glutTimerFunc(10, TimeEvent, 0);
@@ -287,12 +298,12 @@ GLvoid KeyUpEvent(unsigned char key, int x, int y)
 
 GLvoid spKeyEvent(int key, int x, int y)
 {
-
+	
 }
 
 GLvoid spKeyUpEvent(int key, int x, int y)
 {
-
+	
 }
 
 GLvoid GLTranspose(GLclampf* x, GLclampf* y)
@@ -306,7 +317,7 @@ GLvoid GLTranspose(GLclampf* x, GLclampf* y)
 
 GLvoid passiveMouseMotion(int x, int y)
 {
-
+	
 	GLfloat xPos = (GLfloat)x / ((GLfloat)window_w / 2), yPos = (GLfloat)y / ((GLfloat)window_h / 2);
 	GLTranspose(&xPos, &yPos);
 
@@ -326,7 +337,7 @@ GLvoid passiveMouseMotion(int x, int y)
 		firstMouse = false;
 		return;
 	}
-
+	
 	GLfloat xoffset = xPos - lastX;
 	GLfloat yoffset = lastY - yPos;
 	lastX = xPos;
@@ -338,7 +349,7 @@ GLvoid passiveMouseMotion(int x, int y)
 
 	yaw += xoffset;
 	pitch += yoffset;
-
+	
 	if (yaw < 0.0f) yaw += 360.0f;
 	if (yaw > 360.0f) yaw -= 360.0f;
 
@@ -362,7 +373,7 @@ void initBuffer()
 	glGenBuffers(2, vbo_axes);
 
 	glBindVertexArray(vao);
-
+	
 	glBindBuffer(GL_ARRAY_BUFFER, vbo_axes[1]);
 	glBufferData(GL_ARRAY_BUFFER, axes.axes_color.size() * sizeof(GLfloat), axes.axes_color.data(), GL_STATIC_DRAW);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
@@ -385,22 +396,6 @@ void initBuffer()
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo_floor[0]);
 	glBufferData(GL_ARRAY_BUFFER, mapFloor.get_vertex().size() * sizeof(GLfloat), mapFloor.get_vertex().data(), GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(0);
-
-	Hexahedron.loadObj_normalize_center("hexahedron.obj");
-	glGenVertexArrays(1, &Hexahedron.vao);
-	glGenBuffers(3, Hexahedron.vbo);
-
-	glBindVertexArray(Hexahedron.vao);
-
-	glBindBuffer(GL_ARRAY_BUFFER, Hexahedron.vbo[1]);
-	glBufferData(GL_ARRAY_BUFFER, Hexahedron.color.size() * 3 * 4, Hexahedron.color.data(), GL_STATIC_DRAW);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(1);
-
-	glBindBuffer(GL_ARRAY_BUFFER, Hexahedron.vbo[0]);
-	glBufferData(GL_ARRAY_BUFFER, Hexahedron.outvertex.size() * 3 * 4, Hexahedron.outvertex.data(), GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(0);
 

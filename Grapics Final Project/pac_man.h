@@ -7,23 +7,25 @@
 class pac_man
 {
 protected:
-	unsigned int vao;
-	unsigned int vbo_vertex;
-	unsigned int vbo_texture;
-	unsigned int vbo_normal;
-
-	std::vector<GLfloat> vertex = std::vector<GLfloat>(108); //임시 직육면체
 	std::vector<GLfloat> color = std::vector<GLfloat>(108);
 	glm::mat4 transformation;
 
 	int col;
 	int row;
+	int old_col, old_row;
 
 	glm::vec3 pos;
 	GLfloat speed;
 	std::vector<int> paths;
 
+	unsigned int vao = 0;
+
 public:
+	static objRead model;
+	static unsigned int vbo_vertex;
+	static unsigned int vbo_texture;
+	static unsigned int vbo_normal;
+	
 	pac_man();
 
 	int get_col()const { return col; }
@@ -31,53 +33,69 @@ public:
 
 	GLvoid draw(unsigned int& modelLocation);
 	GLvoid update();
-	//virtual GLvoid move();
 };
+
+objRead pac_man::model;
+unsigned int pac_man::vbo_vertex;
+unsigned int pac_man::vbo_texture;
+unsigned int pac_man::vbo_normal;
 
 pac_man::pac_man()
 {
-	makeCuboid(vertex, 10.0f, 20.0f);
-	setCol(color, 0.0f, 1.0f, 0.5f);
+	col = 24;
+	row = 24;
+	old_col = col;
+	old_row = row;
 
-	col = 39;
-	row = 39;
-
-	pos.x = 487.5f;
+	pos.x = 480.0f;
 	pos.y = 0.0f;
-	pos.z = 487.5f;
+	pos.z = 480.0f;
 
 	transformation = glm::mat4(1.0f);
 	transformation = glm::translate(transformation, pos);
-	speed = 1.25;
+	speed = 1.00f;
 
-	glGenVertexArrays(1, &vao);
-	glGenBuffers(1, &vbo_vertex);
-	glGenBuffers(1, &vbo_normal);
-	glGenBuffers(1, &vbo_texture);
+	setCol(color, 1.0f, 1.0f, 0.0f);
 
-	glBindVertexArray(vao);
+	if (vao == 0)
+	{
+		glGenVertexArrays(1, &vao);
+		if (pac_man::model.outnormal.empty())
+		{
+			pac_man::model.loadObj_normalize_center("test.obj");
 
-	//지금은 노말로 하는중 아직 조명 안함
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_normal);
-	glBufferData(GL_ARRAY_BUFFER, color.size() * sizeof(GLfloat), color.data(), GL_STATIC_DRAW);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(1);
+			glGenBuffers(1, &pac_man::vbo_vertex);
+			glGenBuffers(1, &pac_man::vbo_normal);
+			glGenBuffers(1, &pac_man::vbo_texture);
 
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_vertex);
-	glBufferData(GL_ARRAY_BUFFER, vertex.size() * sizeof(GLfloat), vertex.data(), GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(0);
+			glBindVertexArray(vao);
+
+			glBindBuffer(GL_ARRAY_BUFFER, pac_man::vbo_normal);
+			glBufferData(GL_ARRAY_BUFFER, color.size() * sizeof(GLfloat), color.data(), GL_STATIC_DRAW);
+			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+			glEnableVertexAttribArray(1);
+
+			glBindBuffer(GL_ARRAY_BUFFER, pac_man::vbo_vertex);
+			glBufferData(GL_ARRAY_BUFFER, pac_man::model.outvertex.size() * sizeof(glm::vec3), pac_man::model.outvertex.data(), GL_STATIC_DRAW);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+			glEnableVertexAttribArray(0);
+		}
+		else
+		{
+			glBindVertexArray(vao);
+			glBindBuffer(GL_ARRAY_BUFFER, pac_man::vbo_normal);
+			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+			glEnableVertexAttribArray(1);
+			glBindBuffer(GL_ARRAY_BUFFER, pac_man::vbo_vertex);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+			glEnableVertexAttribArray(0);
+		}
+	}
 }
 
 GLvoid pac_man::draw(unsigned int& modelLocation)
 {
 	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(transformation));
 	glBindVertexArray(vao);
-	glDrawArrays(GL_TRIANGLES, 0, vertex.size() / 3);
+	glDrawArrays(GL_TRIANGLES, 0, pac_man::model.outvertex.size());
 }
-
-
-//class wander_pac_man : public pac_man
-//{
-//
-//};

@@ -7,8 +7,8 @@ class map_floor
 
 private:
 	int row_num, col_num;
-	std::vector<GLfloat> vertex = std::vector<GLfloat>(108);
-	std::vector<GLfloat> color = std::vector<GLfloat>(108);
+	std::vector<GLfloat> vertex;
+	std::vector<GLfloat> color;
 	glm::mat4 transformation;
 
 	GLfloat width, length;
