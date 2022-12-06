@@ -31,8 +31,6 @@ const GLint window_w = 1000, window_h = 700;
 GLfloat rColor = 0.0f, gColor = 0.0f, bColor = 0.0f;
 GLfloat tv_rColor = 1.0f, tv_gColor = 1.0f, tv_bColor = 1.0f;
 
-
-
 unsigned int modelLocation;
 unsigned int viewLocation;
 unsigned int projLocation;
@@ -68,9 +66,6 @@ move_obj* mainObject;
 GLboolean set_cusor = true, firstMouse = false;
 GLfloat lastX, lastY, yaw = -90.0f, pitch = 0.0f;
 
-
-objRead Hexahedron;
-
 Jewel** jewel;
 
 chase_pac_man* test_chase_pac;
@@ -91,7 +86,6 @@ int main(int argc, char** argv)
 	mountain::rNum = 25;
 	mountain::cNum = 25;
 	mapFloor.set_floor(mountain::rNum, mountain::cNum);
-	std::cout << 'z';
 
 	mountainMaze.initialize((mountain::rNum + 1) / 2, (mountain::cNum + 1) / 2);
 	while(!maze::completeGenerate)
@@ -125,7 +119,7 @@ int main(int argc, char** argv)
 			jewel[i][j].set_pos(mountain_list[i][j].pos, mountain_list[i][j].maze_state);
 		}
 	}
-
+	
 	//세이더 읽어와서 세이더 프로그램 만들기
 	shaderID = make_shaderProgram();	//세이더 프로그램 만들기
 	initBuffer();
@@ -192,6 +186,9 @@ GLvoid drawScene()
 	glBindVertexArray(vao_floor);
 	glDrawArrays(GL_TRIANGLES, 0, mapFloor.get_vertex().size() / 3);
 		
+	test_wander_pac->draw(modelLocation);
+	test_chase_pac->draw(modelLocation);
+
 	for (int i = 0; i < mountain::cNum; ++i) {
 		for (int j = 0; j < mountain::rNum; ++j) {
 			mountain_list[i][j].drawMaze(modelLocation);
@@ -203,8 +200,7 @@ GLvoid drawScene()
 	
 	//미니맵에서만 플레이어 객체 보임.
 	//mainObject->draw(modelLocation);
-	test_wander_pac->draw(modelLocation);
-	test_chase_pac->draw(modelLocation);
+
 
 	glViewport(window_w/8, window_h/8, 300, 300);
 
@@ -272,7 +268,7 @@ GLvoid TimeEvent(int value)
 	{
 		test_wander_pac->set_miss_time(100);
 	}
-	test_wander_pac->print_time();
+	//test_wander_pac->print_time();
 	test_wander_pac->move();
 
 
@@ -402,23 +398,5 @@ void initBuffer()
 	glBufferData(GL_ARRAY_BUFFER, mapFloor.get_vertex().size() * sizeof(GLfloat), mapFloor.get_vertex().data(), GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(0);
-
-	Hexahedron.loadObj_normalize_center("hexahedron.obj");
-	glGenVertexArrays(1, &Hexahedron.vao);
-	glGenBuffers(3, Hexahedron.vbo);
-
-	glBindVertexArray(Hexahedron.vao);
-
-	glBindBuffer(GL_ARRAY_BUFFER, Hexahedron.vbo[1]);
-	glBufferData(GL_ARRAY_BUFFER, Hexahedron.color.size() * 3 * 4, Hexahedron.color.data(), GL_STATIC_DRAW);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(1);
-
-	glBindBuffer(GL_ARRAY_BUFFER, Hexahedron.vbo[0]);
-	glBufferData(GL_ARRAY_BUFFER, Hexahedron.outvertex.size() * 3 * 4, Hexahedron.outvertex.data(), GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(0);
-
-
 
 }

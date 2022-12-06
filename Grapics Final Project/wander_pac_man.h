@@ -23,7 +23,6 @@ public:
 	GLvoid set_direction();
 
 	GLvoid miss_time_gone();
-	GLvoid target_in_sight();
 
 	GLvoid move();
 	std::vector<int> get_paths() const { return paths; }
@@ -324,9 +323,4 @@ bool wander_pac_man::set_path(const std::vector<std::vector<mountain>>& m_list, 
 		}
 	}
 	return false;
-}
-
-GLvoid wander_pac_man::set_direction()
-{
-
 }

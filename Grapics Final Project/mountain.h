@@ -1,27 +1,22 @@
 #pragma once
 //#include "make_Shader.h"
 #include "all_include_file.h"
-#include "cuboid.h"
 #include "my_maze.h"
 
 class mountain
 {
 private:
 
-	std::vector<GLfloat> vertex = std::vector<GLfloat>(108);
-	std::vector<GLfloat> color = std::vector<GLfloat>(108);;
+	std::vector<GLfloat> color = std::vector<GLfloat>(108);
 	glm::mat4 transformation;
 	
 	GLint index_r;
 	GLint index_c;
-	GLfloat max_height;
-	GLfloat speed;
-	GLfloat now_height;
-	GLboolean state_up;
 
 public:
 	GLboolean maze_state;
 
+	static objRead cuboid;
 	static GLuint vao;
 	static GLuint vbo[2];
 	static GLfloat width;
@@ -29,40 +24,30 @@ public:
 	static GLboolean initAni;
 	static GLint rNum;
 	static GLint cNum;
-	
+
 	//cji
 	glm::vec3 pos;
 
 	mountain(const GLint& r, const GLint& c)
 	{
-		std::uniform_int_distribution<int> dis(50, 300);
-		std::uniform_int_distribution<int> dis_speed(1, 10);
-		max_height = 5;
-		speed = static_cast<GLfloat>(dis_speed(gen)) * 0.01;
-		now_height = 0.0f;
-		state_up = true;
-
 		index_r = r;
 		index_c = c;
 		//true라면 미로의 길이다 즉 바닥으로 변한다
 		maze_state = false;
 
-		makeCuboid(vertex, mountain::width / 2, mountain::length / 2, max_height);
-
-		GLfloat tempCol = dis(gen) * 0.001;
-
-		setCol(color, tempCol, tempCol, tempCol);
+		setCol(color, 0.2f, 0.2f, 0.2f);
 
 		transformation = glm::mat4(1.0f);
 		transformation = glm::translate(transformation,
 						 glm::vec3((-500.0f + mountain::width / 2) + mountain::width * index_r, 0.0f, (-500.0f + mountain::length / 2) + mountain::length * index_c));
 
-		transformation = glm::scale(transformation, glm::vec3(1.0f, max_height, 1.0f));
 		//보석 위치를 얻어올 좌표값
 		pos = { (-500.0f + mountain::width / 2) + mountain::width * index_r, 0.0f, (-500.0f + mountain::length / 2) + mountain::length * index_c };
 
 		if (mountain::vao == 0)
 		{
+			mountain::cuboid.loadObj_normalize_center("cuboid.obj");
+
 			glGenVertexArrays(1, &mountain::vao);
 			glGenBuffers(2, mountain::vbo);
 
@@ -74,29 +59,24 @@ public:
 			glEnableVertexAttribArray(1);
 
 			glBindBuffer(GL_ARRAY_BUFFER, mountain::vbo[0]);
-			glBufferData(GL_ARRAY_BUFFER, vertex.size() * sizeof(GLfloat), vertex.data(), GL_STATIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, cuboid.outvertex.size() * sizeof(glm::vec3), cuboid.outvertex.data(), GL_STATIC_DRAW);
 			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 			glEnableVertexAttribArray(0);
 		}
 	}
 
-	GLvoid set_speed(const GLfloat& i_speed) { speed += i_speed; }
-
 	GLint get_index_r() const { return index_r; }
 	GLint get_index_c() const { return index_c; }
-	GLfloat get_speed() const { return speed; }
 
 	GLvoid draw(unsigned int& modelLocation);
 	GLvoid drawMaze(unsigned int& modelLocation);
-	GLvoid init_animation();
-	GLvoid animation();
 	friend GLvoid set_maze(const maze& completeMaze, std::vector<std::vector<mountain>>& mountainList);
 	GLvoid set_height();
 	//cji
-	GLfloat get_height() { return now_height; };
 };
 GLvoid open_random_maze(std::vector<std::vector<mountain>>& mountainList, const int& i, const int& j, const int& wall_num);
 
+objRead mountain::cuboid;
 GLuint mountain::vao = 0;
 GLuint mountain::vbo[2];
 GLfloat mountain::width = 0.0f;
@@ -110,7 +90,7 @@ GLvoid mountain::draw(unsigned int& modelLocation)
 {
 	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(transformation));
 	glBindVertexArray(mountain::vao);
-	glDrawArrays(GL_TRIANGLES, 0, vertex.size() / 3);
+	glDrawArrays(GL_TRIANGLES, 0, cuboid.outvertex.size());
 }
 
 GLvoid mountain::drawMaze(unsigned int& modelLocation)
@@ -118,51 +98,8 @@ GLvoid mountain::drawMaze(unsigned int& modelLocation)
 	if (maze_state)
 		return;
 	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(transformation));
-	glBindVertexArray(vao);
-	glDrawArrays(GL_TRIANGLES, 0, vertex.size() / 3);
-}
-
-
-GLvoid mountain::init_animation()
-{
-	now_height += 0.1f;
-	if (now_height >= 1.0f)
-	{
-		state_up = false;
-		mountain::initAni = true;
-		now_height = 1.0f;
-	}
-	transformation = glm::mat4(1.0f);
-	transformation = glm::translate(transformation,
-		glm::vec3((-500.0f + mountain::width / 2) + mountain::width * index_r, max_height * now_height, (-500.0f + mountain::length / 2) + mountain::length * index_c));
-	transformation = glm::scale(transformation, glm::vec3(1.0f, now_height, 1.0f));
-
-}
-
-GLvoid mountain::animation()
-{
-	if (state_up)
-	{
-		now_height += speed;
-if (now_height >= 1.0f)
-{
-	now_height = 1.0f;
-	state_up = false;
-}
-	}
-	else if (!state_up)
-	{
-	now_height -= speed;
-	if (now_height <= 0.0f)
-	{
-		now_height = 0.0f;
-		state_up = true;
-	}
-	}
-	transformation = glm::mat4(1.0f);
-	transformation = glm::translate(transformation,
-		glm::vec3((-500.0f + mountain::width / 2) + mountain::width * index_r, max_height * now_height, (-500.0f + mountain::length / 2) + mountain::length * index_c));
-	transformation = glm::scale(transformation, glm::vec3(1.0f, now_height, 1.0f));
+	glBindVertexArray(mountain::vao);
+	glDrawArrays(GL_TRIANGLES, 0, cuboid.outvertex.size());
 }
 
 GLvoid set_maze(const maze& completeMaze, std::vector<std::vector<mountain>>& mountainList)
@@ -212,8 +149,6 @@ GLvoid set_maze(const maze& completeMaze, std::vector<std::vector<mountain>>& mo
 
 	if (mountain::cNum % 2 == 0)
 	{
-		//std::uniform_int_distribution<int> dis(10, mountain::rNum - 4);
-		//int random_loop = dis(gen);
 		for (int i = 0; i < mountain::rNum; ++i)
 		{
 			if(i % 2 == 0)
@@ -223,8 +158,6 @@ GLvoid set_maze(const maze& completeMaze, std::vector<std::vector<mountain>>& mo
 
 	if (mountain::rNum % 2 == 0)
 	{
-		//std::uniform_int_distribution<int> dis(10, mountain::cNum - 4);
-		//int random_loop = dis(gen);
 		for (int i = 0; i < mountain::cNum; ++i)
 		{
 			if (i % 2 == 0)
@@ -262,17 +195,6 @@ GLvoid set_maze(const maze& completeMaze, std::vector<std::vector<mountain>>& mo
 				open_random_maze(mountainList, i, j, wall_num);
 			}
 		}
-	}
-}
-
-GLvoid mountain::set_height()
-{
-	if (!maze_state)
-	{
-		transformation = glm::mat4(1.0f);
-		transformation = glm::translate(transformation,
-			glm::vec3((-500.0f + mountain::width / 2) + mountain::width * index_r, max_height * 0.2f, (-500.0f + mountain::length / 2) + mountain::length * index_c));
-		transformation = glm::scale(transformation, glm::vec3(1.0f, 0.2f, 1.0f));
 	}
 }
 

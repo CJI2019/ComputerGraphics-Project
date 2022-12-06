@@ -199,7 +199,7 @@ GLvoid move_obj::move(const std::vector<std::vector<mountain>>& mountainList, Je
 				jewel[i][j].status_draw = false;
 			}
 			jewel[i][j].respawn();
-			//jewel[i][j].update();
+			jewel[i][j].update();
 		}
 	}
 
