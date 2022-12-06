@@ -17,9 +17,9 @@ protected:
 	glm::vec3 pos;
 	GLfloat speed;
 	std::vector<int> paths;
+	int look[2];
 
 	unsigned int vao = 0;
-
 public:
 	static objRead model;
 	static unsigned int vbo_vertex;
@@ -71,7 +71,7 @@ pac_man::pac_man()
 			glBindVertexArray(vao);
 
 			glBindBuffer(GL_ARRAY_BUFFER, pac_man::vbo_normal);
-			glBufferData(GL_ARRAY_BUFFER, color.size() * sizeof(GLfloat), color.data(), GL_STATIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, pac_man::model.outnormal.size() * sizeof(GLfloat), pac_man::model.outnormal.data(), GL_STATIC_DRAW);
 			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
 			glEnableVertexAttribArray(1);
 

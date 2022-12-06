@@ -34,6 +34,11 @@ GLfloat tv_rColor = 1.0f, tv_gColor = 1.0f, tv_bColor = 1.0f;
 unsigned int modelLocation;
 unsigned int viewLocation;
 unsigned int projLocation;
+unsigned int lightPosLocation;
+unsigned int lightColorLocation;
+unsigned int objColorLocation;
+unsigned int viewPosLocation;
+unsigned int ambientLocation;
 
 glm::mat4 camera;
 glm::vec3 camera_eye = glm::vec3(700.0f, 800.0f, 700.0f);
@@ -52,7 +57,7 @@ GLuint vao;
 GLuint vbo_axes[2];
 axes_coordination axes;
 
-map_floor mapFloor;
+map_floor* mapFloor;
 GLuint vao_floor;
 GLuint vbo_floor[2];
 
@@ -71,6 +76,10 @@ Jewel** jewel;
 chase_pac_man* test_chase_pac;
 wander_pac_man* test_wander_pac;
 
+glm::vec3 light_pos = { 0.0f, 300.0f, 0.0f };
+glm::vec3 light_color = glm::vec3(1.0f, 1.0f, 1.0f);
+//glm::mat4 light_trans = glm::mat4(1.0f);
+
 int main(int argc, char** argv)
 {
 	glutInit(&argc, argv);
@@ -83,16 +92,19 @@ int main(int argc, char** argv)
 	glewInit();
 	glutSetCursor(GLUT_CURSOR_NONE); // 마우스 커서를 안보이게 한다.
 
+
 	mountain::rNum = 25;
 	mountain::cNum = 25;
-	mapFloor.set_floor(mountain::rNum, mountain::cNum);
+	mapFloor = new map_floor(mountain::rNum, mountain::cNum);
+
+	//mapFloor.set_floor(mountain::rNum, mountain::cNum);
 
 	mountainMaze.initialize((mountain::rNum + 1) / 2, (mountain::cNum + 1) / 2);
 	while(!maze::completeGenerate)
 		mountainMaze.generator();
 
-	mountain::length = mapFloor.get_length();
-	mountain::width = mapFloor.get_width();
+	mountain::length = mapFloor->get_length();
+	mountain::width = mapFloor->get_width();
 
 	mountain_list = std::vector<std::vector<mountain>>(mountain::cNum);
 	for (int i = 0; i < mountain::cNum; ++i)
@@ -134,12 +146,18 @@ int main(int argc, char** argv)
 	glutPassiveMotionFunc(passiveMouseMotion);
 
 	//glEnable(GL_DEPTH_TEST);
-	//glEnable(GL_CULL_FACE);
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glEnable(GL_CULL_FACE);
+	glPolygonMode(GL_FRONT, GL_FILL);
+	glPolygonMode(GL_BACK, GL_POINTS);
 
 	modelLocation = glGetUniformLocation(shaderID, "modelTransform");
 	viewLocation = glGetUniformLocation(shaderID, "viewTransform");
 	projLocation = glGetUniformLocation(shaderID, "projectionTransform");
+	lightPosLocation = glGetUniformLocation(shaderID, "lightPos"); //조명 위치
+	lightColorLocation = glGetUniformLocation(shaderID, "lightColor"); //조명 색 설정
+	objColorLocation = glGetUniformLocation(shaderID, "objectColor");  //주황색 반사
+	viewPosLocation = glGetUniformLocation(shaderID, "cameraEye");     //--- viewPos 값 전달: 카메라 위치 
+	ambientLocation = glGetUniformLocation(shaderID, "ambientLight");
 
 
 	camera = glm::lookAt(camera_eye, camera_look, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -148,7 +166,6 @@ int main(int argc, char** argv)
 	//근평면은 포함이고 원평면은 포함X
 	projection = glm::perspective(glm::radians(60.0f), 1.0f, 0.1f, 3000.0f);
 	mini_projection = glm::mat4(1.0f);
-	//mini_projection = glm::ortho(-1000.0f, 1000.0f, -1000.0f, 1000.0f, 50.0f, 3000.0f);
 	mini_projection = glm::ortho(-100.0f, 100.0f, -100.0f, 100.0f, 50.0f, 3000.0f);
 
 	glutMainLoop();
@@ -156,8 +173,11 @@ int main(int argc, char** argv)
 
 GLvoid drawScene()
 {
+	glUniform3f(lightPosLocation, light_pos.x, light_pos.y, light_pos.z);
+	glUniform3f(lightColorLocation, light_color.x, light_color.y, light_color.z);
+	glUniform1f(ambientLocation, 0.5f);
+	
 	glEnable(GL_DEPTH_TEST);
-	//glEnable(GL_CULL_FACE);
 	glClearColor(rColor, gColor, bColor, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
@@ -176,22 +196,27 @@ GLvoid drawScene()
 	glUniformMatrix4fv(projLocation, 1, GL_FALSE, glm::value_ptr(projection));
 	
 	//좌표축 그리기
-	modelLocation = glGetUniformLocation(shaderID, "modelTransform");
-	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(axes.transformation));
-	glBindVertexArray(vao);
-	glDrawArrays(GL_LINES, 0, 6);
+	//modelLocation = glGetUniformLocation(shaderID, "modelTransform");
+	//glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(axes.transformation));
+	//glBindVertexArray(vao);
+	//glDrawArrays(GL_LINES, 0, 6);
 
 	//바닥 그리기
-	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, mapFloor.get_ptr_transformation());
+	glUniform3f(objColorLocation, 0.3f, 0.3f, 0.3f);
+	mapFloor->draw(modelLocation);
+	/*glUniformMatrix4fv(modelLocation, 1, GL_FALSE, mapFloor.get_ptr_transformation());
 	glBindVertexArray(vao_floor);
-	glDrawArrays(GL_TRIANGLES, 0, mapFloor.get_vertex().size() / 3);
-		
+	glDrawArrays(GL_TRIANGLES, 0, mapFloor.get_vertex().size() / 3);*/
+	
+	glUniform3f(objColorLocation, 1.0f, 1.0f, 0.0f);
 	test_wander_pac->draw(modelLocation);
 	test_chase_pac->draw(modelLocation);
 
 	for (int i = 0; i < mountain::cNum; ++i) {
 		for (int j = 0; j < mountain::rNum; ++j) {
+			glUniform3f(objColorLocation, 0.1f, 0.1f, 0.1f);
 			mountain_list[i][j].drawMaze(modelLocation);
+			glUniform3f(objColorLocation, 0.55f, 0.0f, 1.0f);
 			if (jewel[i][j].status_draw) {
 				jewel[i][j].draw(modelLocation);
 			}
@@ -221,16 +246,20 @@ GLvoid drawScene()
 	glUniformMatrix4fv(viewLocation, 1, GL_FALSE, glm::value_ptr(topViewCamera));
 
 	if (STATE::minnimap_On) {
-		glUniformMatrix4fv(modelLocation, 1, GL_FALSE, mapFloor.get_ptr_transformation());
-		glBindVertexArray(vao_floor);
-		glDrawArrays(GL_TRIANGLES, 0, mapFloor.get_vertex().size() / 3);
+		glUniform3f(objColorLocation, 0.1f, 0.1f, 0.1f);
+		mapFloor->draw(modelLocation);
 
+		glUniform3f(objColorLocation, 0.3f, 0.5f, 0.8f);
 		mainObject->draw(modelLocation);
+
+		glUniform3f(objColorLocation, 1.0f, 1.0f, 0.0f);
 		test_wander_pac->draw(modelLocation);
 		test_chase_pac->draw(modelLocation);
 		for (int i = 0; i < mountain::cNum; ++i) {
 			for (int j = 0; j < mountain::rNum; ++j) {
+				glUniform3f(objColorLocation, 0.1f, 0.1f, 0.1f);
 				mountain_list[i][j].drawMaze(modelLocation);
+				glUniform3f(objColorLocation, 0.55f, 0.0f, 1.0f);
 				if (jewel[i][j].status_draw) {
 					jewel[i][j].draw(modelLocation);
 				}
@@ -383,20 +412,4 @@ void initBuffer()
 	glBufferData(GL_ARRAY_BUFFER, axes.axes_vertex.size() * sizeof(GLfloat), axes.axes_vertex.data(), GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(0);
-
-	glGenVertexArrays(1, &vao_floor);
-	glGenBuffers(2, vbo_floor);
-
-	glBindVertexArray(vao_floor);
-
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_floor[1]);
-	glBufferData(GL_ARRAY_BUFFER, mapFloor.get_color().size() * sizeof(GLfloat), mapFloor.get_color().data(), GL_STATIC_DRAW);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(1);
-
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_floor[0]);
-	glBufferData(GL_ARRAY_BUFFER, mapFloor.get_vertex().size() * sizeof(GLfloat), mapFloor.get_vertex().data(), GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(0);
-
 }

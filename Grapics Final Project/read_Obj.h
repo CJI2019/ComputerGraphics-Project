@@ -85,6 +85,12 @@ int objRead::loadObj_normalize_center(const char* filename)
 					printf("File can't be read by our simple parser : ( Try exporting with other options\n");
 					return false;
 				}
+				vertexIndices.push_back(vertexIndex[0]);
+				vertexIndices.push_back(vertexIndex[1]);
+				vertexIndices.push_back(vertexIndex[2]);
+				normalIndices.push_back(normalIndex[0]);
+				normalIndices.push_back(normalIndex[1]);
+				normalIndices.push_back(normalIndex[2]);
 			}
 			else
 			{
@@ -93,17 +99,16 @@ int objRead::loadObj_normalize_center(const char* filename)
 					printf("File can't be read by our simple parser : ( Try exporting with other options\n");
 					return false;
 				}
+				vertexIndices.push_back(vertexIndex[0]);
+				vertexIndices.push_back(vertexIndex[1]);
+				vertexIndices.push_back(vertexIndex[2]);
+				uvIndices.push_back(uvIndex[0]);
+				uvIndices.push_back(uvIndex[1]);
+				uvIndices.push_back(uvIndex[2]);
+				normalIndices.push_back(normalIndex[0]);
+				normalIndices.push_back(normalIndex[1]);
+				normalIndices.push_back(normalIndex[2]);
 			}
-			
-			vertexIndices.push_back(vertexIndex[0]);
-			vertexIndices.push_back(vertexIndex[1]);
-			vertexIndices.push_back(vertexIndex[2]);
-			//uvIndices.push_back(uvIndex[0]);
-			//uvIndices.push_back(uvIndex[1]);
-			//uvIndices.push_back(uvIndex[2]);
-			normalIndices.push_back(normalIndex[0]);
-			normalIndices.push_back(normalIndex[1]);
-			normalIndices.push_back(normalIndex[2]);
 		}
 	}
 
@@ -142,8 +147,8 @@ int objRead::loadObj_normalize_center(const char* filename)
 		outvertex.push_back(temp);
 		
 		//임시로 컬러 값을 넣어본다.
-		temp = { 0.55f, 0.0f, 1.0f, };
-		color.push_back(temp);
+		//temp = { 0.55f, 0.0f, 1.0f, };
+		//color.push_back(temp);
 
 		//glm::vec3 vertex = temp_vertices[vertexIndex - 1];
 		//outvertex.push_back(vertex);

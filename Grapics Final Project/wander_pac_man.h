@@ -7,7 +7,6 @@ class wander_pac_man : public pac_man
 private:
 
 	int direction[2] = {0, 0}; //index 0: x방향(row), index 1:z방향(col) ex) 1 0 -> +x방향 , 0 -1 -> -z방향
-	int look[2];
 	int sight = 5; //최대 볼수있는 칸의 수
 	int miss_time = 0; //놓친 시간
 public:
@@ -153,6 +152,14 @@ GLvoid wander_pac_man::move()
 
 	transformation = glm::mat4(1.0f);
 	transformation = glm::translate(transformation, pos);
+	if (look[0] == 0 && look[1] == 1)
+		return;
+	else if (look[0] == 0 && look[1] == -1)
+		transformation = glm::rotate(transformation, glm::radians(180.0f), { 0.0f, 1.0f, 0.0f });
+	else if (look[0] == 1 && look[1] == 0)
+		transformation = glm::rotate(transformation, glm::radians(90.0f), { 0.0f, 1.0f, 0.0f });
+	else if (look[0] == -1 && look[1] == 0)
+		transformation = glm::rotate(transformation, glm::radians(-90.0f), { 0.0f, 1.0f, 0.0f });
 }
 
 GLvoid wander_pac_man::set_path(const std::vector<std::vector<mountain>>& m_list)
