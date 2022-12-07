@@ -15,14 +15,16 @@ uniform vec3 lightColor;													//--- 응용 프로그램에서 설정한 조명 색상
 uniform vec3 lightPos;
 uniform vec3 cameraEye;
 uniform float ambientLight;
-uniform sampler2D outTexture;
+uniform sampler2D outTexture1;
+uniform sampler2D outTexture2;
+uniform sampler2D outTexture3;
 
 void main(void) 
 {
 	vec3 Normal = out_Normal;
 
 	//앰비언트 (주변조명(간접조명))
-	//float ambientLight = 0.5;                                               //--- 주변 조명 계수: 0.0 ≤ ambientLight ≤ 1.0 
+	//float ambientLight = 0.5;                                             //--- 주변 조명 계수: 0.0 ≤ ambientLight ≤ 1.0 
 	vec3 ambient = ambientLight * lightColor;							    //--- 주변 조명값
 
 	//디퓨즈 (산란 반사 조명)
@@ -44,7 +46,12 @@ void main(void)
 	vec3 result = (ambient + diffuse + specular) * objectColor;		// 객체의 색과 주변조명값을 곱하여 최종 객체 색상 설정
 
 	FragColor = vec4 (result , 1.0);
+
 	if(out_Texture.x >= 0){
-		FragColor = texture(outTexture, out_Texture) * FragColor;
+		//FragColor = texture(outTexture1, out_Texture)  * FragColor;
+		if(texture(outTexture1, out_Texture) == texture(outTexture2, out_Texture))
+			FragColor = (texture(outTexture1, out_Texture) + texture(outTexture2, out_Texture)) / 2 * FragColor;
+		else
+			FragColor = texture(outTexture2, out_Texture) + texture(outTexture1, out_Texture);
 	}
 }

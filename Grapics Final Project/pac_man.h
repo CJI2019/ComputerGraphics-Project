@@ -19,6 +19,7 @@ protected:
 	std::vector<int> paths;
 	int look[2];
 
+
 	unsigned int vao = 0;
 public:
 	static objRead model;
@@ -33,6 +34,8 @@ public:
 
 	GLvoid draw(unsigned int& modelLocation);
 	GLvoid update();
+
+
 };
 
 objRead pac_man::model;
@@ -70,6 +73,11 @@ pac_man::pac_man()
 
 			glBindVertexArray(vao);
 
+			glBindBuffer(GL_ARRAY_BUFFER, pac_man::vbo_texture);
+			glBufferData(GL_ARRAY_BUFFER, pac_man::model.outuv.size() * sizeof(GLfloat), pac_man::model.outuv.data(), GL_STATIC_DRAW);
+			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
+			glEnableVertexAttribArray(2);
+
 			glBindBuffer(GL_ARRAY_BUFFER, pac_man::vbo_normal);
 			glBufferData(GL_ARRAY_BUFFER, pac_man::model.outnormal.size() * sizeof(GLfloat), pac_man::model.outnormal.data(), GL_STATIC_DRAW);
 			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
@@ -83,9 +91,14 @@ pac_man::pac_man()
 		else
 		{
 			glBindVertexArray(vao);
+			glBindBuffer(GL_ARRAY_BUFFER, pac_man::vbo_texture);
+			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
+			glEnableVertexAttribArray(2);
+
 			glBindBuffer(GL_ARRAY_BUFFER, pac_man::vbo_normal);
 			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
 			glEnableVertexAttribArray(1);
+
 			glBindBuffer(GL_ARRAY_BUFFER, pac_man::vbo_vertex);
 			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 			glEnableVertexAttribArray(0);

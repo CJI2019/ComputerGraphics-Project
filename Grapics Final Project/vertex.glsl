@@ -12,6 +12,7 @@ out vec3 out_Normal;
 out vec3 FragPos;
 out vec2 out_Texture;
 
+
 void main()
 {
 	gl_Position = projectionTransform * viewTransform * modelTransform * vec4(vPos, 1.0); //--- 좌표값에 modelTransform 변환을 적용한다.
