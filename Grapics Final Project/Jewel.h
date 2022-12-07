@@ -1,4 +1,5 @@
 #pragma once
+#include "pac_man.h"
 
 class Jewel
 {
@@ -143,6 +144,7 @@ GLboolean Jewel::collision(GLfloat* move_obj_bb)
 
 	if (size == 5.0f) { // 거대 보석을 먹을때 몬스터 이벤트 처리 하면 됨.
 		delete_big_jewel();
+		pac_man::stun_time = 360;
 	}
 	return true;
 }

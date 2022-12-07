@@ -39,10 +39,7 @@ unsigned int lightColorLocation;
 unsigned int objColorLocation;
 unsigned int viewPosLocation;
 unsigned int ambientLocation;
-unsigned int texture1Location;
-unsigned int texture2Location;
-unsigned int texture3Location;
-
+unsigned int textureLocation;
 
 glm::mat4 camera;
 glm::vec3 camera_eye = glm::vec3(700.0f, 800.0f, 700.0f);
@@ -163,9 +160,8 @@ int main(int argc, char** argv)
 	objColorLocation = glGetUniformLocation(shaderID, "objectColor");  //주황색 반사
 	viewPosLocation = glGetUniformLocation(shaderID, "cameraEye");     //--- viewPos 값 전달: 카메라 위치 
 	ambientLocation = glGetUniformLocation(shaderID, "ambientLight");
-	texture1Location = glGetUniformLocation(shaderID, "outTexture1");
-	texture2Location = glGetUniformLocation(shaderID, "outTexture2");
-	texture3Location = glGetUniformLocation(shaderID, "outTexture3");
+	//texture1Location = glGetUniformLocation(shaderID, "outTexture1");
+
 
 
 	camera = glm::lookAt(camera_eye, camera_look, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -184,10 +180,6 @@ GLvoid drawScene()
 	glUniform3f(lightPosLocation, light_pos.x, light_pos.y, light_pos.z);
 	glUniform3f(lightColorLocation, light_color.x, light_color.y, light_color.z);
 	glUniform1f(ambientLocation, 0.7f);
-
-	glUniform1i(texture1Location, 0);
-	glUniform1i(texture2Location, 1);
-	glUniform1i(texture3Location, 2);
 
 	glEnable(GL_DEPTH_TEST);
 	glClearColor(rColor, gColor, bColor, 1.0f);
@@ -208,28 +200,15 @@ GLvoid drawScene()
 	glUniformMatrix4fv(projLocation, 1, GL_FALSE, glm::value_ptr(projection));
 
 	//바닥 그리기
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture[1]);
-	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, texture[1]);
 	glUniform3f(objColorLocation, 0.3f, 0.3f, 0.3f);
 	mapFloor->draw(modelLocation);
 
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture[2]);
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, texture[4]);
-
-	//glActiveTexture(GL_TEXTURE2);
 	//glBindTexture(GL_TEXTURE_2D, texture[3]);
-
-	glUniform3f(objColorLocation, 1.0f, 1.0f, 0.0f);
+	glUniform3f(objColorLocation, 1.0f, 1.0f, 1.0f);
 	test_wander_pac->draw(modelLocation);
 	test_chase_pac->draw(modelLocation);
 
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture[0]);
-	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, texture[0]);
 	for (int i = 0; i < mountain::cNum; ++i) {
 		for (int j = 0; j < mountain::rNum; ++j) {
@@ -263,9 +242,6 @@ GLvoid drawScene()
 	glUniformMatrix4fv(viewLocation, 1, GL_FALSE, glm::value_ptr(topViewCamera));
 
 	if (STATE::minnimap_On) {
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture[1]);
-		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, texture[1]);
 		glUniform3f(objColorLocation, 1.0f, 1.0f, 1.0f);
 		mapFloor->draw(modelLocation);
@@ -300,27 +276,29 @@ GLvoid TimeEvent(int value)
 {
 	mainObject->move(mountain_list, jewel);
 
-	
-	test_chase_pac->set_path(mountain_list, *mainObject);
-	test_chase_pac->move();
-
-	
-	if (!test_wander_pac->set_path(mountain_list, *mainObject))
+	if (test_chase_pac->stun())
 	{
-		if (test_wander_pac->get_miss_time() == 0)
-			test_wander_pac->set_path(mountain_list);
+		test_chase_pac->set_path(mountain_list, *mainObject);
+		test_chase_pac->move();
+	}
+	
+	if (test_wander_pac->stun())
+	{
+		if (!test_wander_pac->set_path(mountain_list, *mainObject))
+		{
+			if (test_wander_pac->get_miss_time() == 0)
+				test_wander_pac->set_path(mountain_list);
+			else
+			{
+				test_wander_pac->miss_time_gone();
+			}
+		}
 		else
 		{
-			test_wander_pac->miss_time_gone();
+			test_wander_pac->set_miss_time(100);
 		}
+		test_wander_pac->move();
 	}
-	else
-	{
-		test_wander_pac->set_miss_time(100);
-	}
-	//test_wander_pac->print_time();
-	test_wander_pac->move();
-
 
 
 	glutPostRedisplay();

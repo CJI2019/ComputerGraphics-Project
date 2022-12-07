@@ -15,9 +15,7 @@ uniform vec3 lightColor;													//--- 응용 프로그램에서 설정한 조명 색상
 uniform vec3 lightPos;
 uniform vec3 cameraEye;
 uniform float ambientLight;
-uniform sampler2D outTexture1;
-uniform sampler2D outTexture2;
-uniform sampler2D outTexture3;
+uniform sampler2D outTexture;
 
 void main(void) 
 {
@@ -48,10 +46,6 @@ void main(void)
 	FragColor = vec4 (result , 1.0);
 
 	if(out_Texture.x >= 0){
-		//FragColor = texture(outTexture1, out_Texture)  * FragColor;
-		if(texture(outTexture1, out_Texture) == texture(outTexture2, out_Texture))
-			FragColor = (texture(outTexture1, out_Texture) + texture(outTexture2, out_Texture)) / 2 * FragColor;
-		else
-			FragColor = texture(outTexture2, out_Texture) + texture(outTexture1, out_Texture);
+		FragColor = texture(outTexture, out_Texture)  * FragColor;
 	}
 }
