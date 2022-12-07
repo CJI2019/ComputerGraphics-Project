@@ -135,6 +135,7 @@ int main(int argc, char** argv)
 	//세이더 읽어와서 세이더 프로그램 만들기
 	shaderID = make_shaderProgram();	//세이더 프로그램 만들기
 	initBuffer();
+	InitTexture();
 
 	glutDisplayFunc(drawScene);
 	glutReshapeFunc(Reshape);
@@ -164,9 +165,9 @@ int main(int argc, char** argv)
 	
 	projection = glm::mat4(1.0f);
 	//근평면은 포함이고 원평면은 포함X
-	projection = glm::perspective(glm::radians(60.0f), 1.0f, 0.1f, 3000.0f);
+	projection = glm::perspective(glm::radians(60.0f), 1.0f, 0.1f, 500.0f);
 	mini_projection = glm::mat4(1.0f);
-	mini_projection = glm::ortho(-100.0f, 100.0f, -100.0f, 100.0f, 50.0f, 3000.0f);
+	mini_projection = glm::perspective(glm::radians(60.0f), 1.0f, 800.0f, 3000.0f);
 
 	glutMainLoop();
 }
@@ -175,7 +176,7 @@ GLvoid drawScene()
 {
 	glUniform3f(lightPosLocation, light_pos.x, light_pos.y, light_pos.z);
 	glUniform3f(lightColorLocation, light_color.x, light_color.y, light_color.z);
-	glUniform1f(ambientLocation, 0.5f);
+	glUniform1f(ambientLocation, 0.7f);
 	
 	glEnable(GL_DEPTH_TEST);
 	glClearColor(rColor, gColor, bColor, 1.0f);
@@ -203,6 +204,7 @@ GLvoid drawScene()
 
 	//바닥 그리기
 	glUniform3f(objColorLocation, 0.3f, 0.3f, 0.3f);
+	
 	mapFloor->draw(modelLocation);
 	/*glUniformMatrix4fv(modelLocation, 1, GL_FALSE, mapFloor.get_ptr_transformation());
 	glBindVertexArray(vao_floor);
@@ -212,6 +214,7 @@ GLvoid drawScene()
 	test_wander_pac->draw(modelLocation);
 	test_chase_pac->draw(modelLocation);
 
+	glBindTexture(GL_TEXTURE_2D, texture[0]);
 	for (int i = 0; i < mountain::cNum; ++i) {
 		for (int j = 0; j < mountain::rNum; ++j) {
 			glUniform3f(objColorLocation, 0.1f, 0.1f, 0.1f);
@@ -237,11 +240,9 @@ GLvoid drawScene()
 	topViewCamera = glm::lookAt( tVCamra_eye,
 		Player_location + glm::vec3(0.0f, -1.0f, 0.0f),	minimap_cameraUp);
 
-	glDisable(GL_DEPTH_TEST);
+	//glDisable(GL_DEPTH_TEST);
 
-	glUniformMatrix4fv(projLocation, 1, GL_FALSE, glm::value_ptr(projection));
-	if(STATE::minimap_perspective)
-		glUniformMatrix4fv(projLocation, 1, GL_FALSE, glm::value_ptr(mini_projection));
+	glUniformMatrix4fv(projLocation, 1, GL_FALSE, glm::value_ptr(mini_projection));
 
 	glUniformMatrix4fv(viewLocation, 1, GL_FALSE, glm::value_ptr(topViewCamera));
 
