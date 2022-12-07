@@ -109,10 +109,10 @@ GLint make_shaderProgram()
 
 
 unsigned int texture[6];
+int widthImage, heightImage, numberOfChannel;
 
 void InitTexture()
 {
-	int widthImage, heightImage, numberOfChannel;
 
 	glGenTextures(1, &texture[0]); //--- 텍스처 생성
 	glBindTexture(GL_TEXTURE_2D, texture[0]); //--- 텍스처 바인딩
@@ -120,9 +120,9 @@ void InitTexture()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	stbi_set_flip_vertically_on_load(true); //--- 이미지가 거꾸로 읽힌다면 추가
+	//stbi_set_flip_vertically_on_load(true); //--- 이미지가 거꾸로 읽힌다면 추가
 	unsigned char* data = stbi_load("image/wall.png", &widthImage, &heightImage, &numberOfChannel, 0);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, widthImage, heightImage, 0, GL_RGB, GL_UNSIGNED_BYTE, data); //---텍스처 이미지 정의
 	glGenerateMipmap(GL_TEXTURE_2D);
-	stbi_image_free(data);
+	//stbi_image_free(data);
 }

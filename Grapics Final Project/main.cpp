@@ -217,7 +217,7 @@ GLvoid drawScene()
 	glBindTexture(GL_TEXTURE_2D, texture[0]);
 	for (int i = 0; i < mountain::cNum; ++i) {
 		for (int j = 0; j < mountain::rNum; ++j) {
-			glUniform3f(objColorLocation, 0.1f, 0.1f, 0.1f);
+			glUniform3f(objColorLocation, 1.0f, 1.0f, 1.0f);
 			mountain_list[i][j].drawMaze(modelLocation);
 			glUniform3f(objColorLocation, 0.55f, 0.0f, 1.0f);
 			if (jewel[i][j].status_draw) {

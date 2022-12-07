@@ -1,7 +1,7 @@
 #version 330 core
 layout (location = 0) in vec3 vPos; //--- 응용 프로그램에서 받아온 도형 좌표값
 layout (location = 1) in vec3 vNormal;
-layout (location = 2) in vec3 vTexture;
+layout (location = 2) in vec2 vTexture;
 
 
 uniform mat4 modelTransform;		//--- 모델링 변환 행렬: uniform 변수로 선언
@@ -10,8 +10,7 @@ uniform mat4 projectionTransform;
 
 out vec3 out_Normal;
 out vec3 FragPos;
-out vec3 out_Texture;
-
+out vec2 out_Texture;
 
 void main()
 {
@@ -25,6 +24,6 @@ void main()
 		out_Texture = vTexture;
 	}
 	else {
-		out_Texture = vec3(-1.0f,-1.0f,-1.0f);
+		out_Texture = vec2(-1.0f,-1.0f);
 	}
 }

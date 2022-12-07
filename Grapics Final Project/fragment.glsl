@@ -5,7 +5,7 @@
 //버텍스 세이더에게서 전달 받음
 in vec3 out_Normal;
 in vec3 FragPos;
-in vec3 out_Texture;
+in vec2 out_Texture;
 
 //색상 출력
 out vec4 FragColor;
@@ -44,7 +44,7 @@ void main(void)
 	vec3 result = (ambient + diffuse + specular) * objectColor;		// 객체의 색과 주변조명값을 곱하여 최종 객체 색상 설정
 
 	FragColor = vec4 (result , 1.0);
-	if(out_Texture.x <= -1){
-		FragColor = texture(outTexture, vec2(out_Texture.x,out_Texture.y)) * FragColor;
+	if(out_Texture.x >= 0){
+		FragColor = texture(outTexture, out_Texture) * FragColor;
 	}
 }
