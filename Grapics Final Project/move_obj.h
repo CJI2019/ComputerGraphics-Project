@@ -208,6 +208,7 @@ GLvoid move_obj::move(const std::vector<std::vector<mountain>>& mountainList, Je
 	for (int i = 0; i < 4; ++i) {
 		if (STATE::dir[i]) {
 			pos.x += direction[i].x * speed;
+			//pos.y += direction[i].y * speed;
 			pos.z += direction[i].z * speed;
 		}
 	}
