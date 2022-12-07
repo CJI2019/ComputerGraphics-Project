@@ -12,7 +12,6 @@ private:
 	GLuint vbo[2];
 
 	std::vector<GLfloat> vertex;
-	//std::vector<GLfloat> color;
 	std::vector<GLfloat> normal;
 	glm::mat4 transformation;
 
@@ -65,7 +64,6 @@ public:
 
 		transformation = glm::mat4(1.0f);
 		transformation = glm::translate(transformation, pos);
-
 
 	}
 

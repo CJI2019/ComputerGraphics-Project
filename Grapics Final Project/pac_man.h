@@ -1,8 +1,8 @@
 #pragma once
 #include "make_Shader.h"
-#include "cuboid.h"
 #include "mountain.h"
 #include "find_path.h"
+#include "move_obj.h"
 
 struct model
 {
@@ -46,6 +46,19 @@ public:
 
 	GLvoid draw(unsigned int& modelLocation);
 	GLvoid update();
+	GLfloat* get_bb();
+	bool colide(GLfloat object[])
+	{
+		
+		GLfloat* pac_man_bb = get_bb();
+
+		if (pac_man_bb[0] > object[1]) return false;
+		if (pac_man_bb[1] < object[0]) return false;
+		if (pac_man_bb[2] > object[3]) return false;
+		if (pac_man_bb[3] < object[2]) return false;
+
+		return true;
+	}
 	bool stun();
 
 };
@@ -71,7 +84,6 @@ pac_man::pac_man()
 	transformation = glm::mat4(1.0f);
 	transformation = glm::translate(transformation, pos);
 	speed = 1.00f;
-	setCol(color, 1.0f, 1.0f, 0.0f);
 
 	if (vao_body == 0)
 	{
@@ -186,6 +198,20 @@ pac_man::pac_man()
 		}
 	}
 }
+
+GLfloat* pac_man::get_bb()
+{
+	GLfloat bb[4] = {
+	pos.x - 20, //left
+	pos.x + 20, //right
+	pos.z - 20, //bottom
+	pos.z + 20  //top
+	};
+
+	return bb;
+}
+
+
 
 bool pac_man::stun()
 {

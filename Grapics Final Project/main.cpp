@@ -300,6 +300,10 @@ GLvoid TimeEvent(int value)
 		test_wander_pac->move();
 	}
 
+	if (test_chase_pac->colide(mainObject->get_bb()) || test_wander_pac->colide(mainObject->get_bb()))
+	{
+		std::cout << "end";
+	}
 
 	glutPostRedisplay();
 	glutTimerFunc(10, TimeEvent, 0);
