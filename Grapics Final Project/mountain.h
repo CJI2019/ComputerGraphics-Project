@@ -6,8 +6,6 @@
 class mountain
 {
 private:
-
-	std::vector<GLfloat> color = std::vector<GLfloat>(108);
 	glm::mat4 transformation;
 	
 	GLint index_r;
@@ -18,7 +16,7 @@ public:
 
 	static objRead cuboid;
 	static GLuint vao;
-	static GLuint vbo[2];
+	static GLuint vbo[3];
 	static GLfloat width;
 	static GLfloat length;
 	static GLboolean initAni;
@@ -35,8 +33,6 @@ public:
 		//true라면 미로의 길이다 즉 바닥으로 변한다
 		maze_state = false;
 
-		setCol(color, 0.2f, 0.2f, 0.2f);
-
 		transformation = glm::mat4(1.0f);
 		transformation = glm::translate(transformation,
 						 glm::vec3((-500.0f + mountain::width / 2) + mountain::width * index_r, 0.0f, (-500.0f + mountain::length / 2) + mountain::length * index_c));
@@ -49,12 +45,12 @@ public:
 			mountain::cuboid.loadObj_normalize_center("cuboid.obj");
 
 			glGenVertexArrays(1, &mountain::vao);
-			glGenBuffers(2, mountain::vbo);
+			glGenBuffers(3, mountain::vbo);
 
 			glBindVertexArray(mountain::vao);
 
 			glBindBuffer(GL_ARRAY_BUFFER, mountain::vbo[1]);
-			glBufferData(GL_ARRAY_BUFFER, color.size() * sizeof(GLfloat), color.data(), GL_STATIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, cuboid.outnormal.size() * sizeof(glm::vec3), cuboid.outnormal.data(), GL_STATIC_DRAW);
 			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
 			glEnableVertexAttribArray(1);
 
@@ -62,6 +58,11 @@ public:
 			glBufferData(GL_ARRAY_BUFFER, cuboid.outvertex.size() * sizeof(glm::vec3), cuboid.outvertex.data(), GL_STATIC_DRAW);
 			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 			glEnableVertexAttribArray(0);
+			
+			glBindBuffer(GL_ARRAY_BUFFER, mountain::vbo[2]);
+			glBufferData(GL_ARRAY_BUFFER, cuboid.outuv.size() * sizeof(glm::vec2), cuboid.outuv.data(), GL_STATIC_DRAW);
+			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
+			glEnableVertexAttribArray(2);
 		}
 	}
 
@@ -78,7 +79,7 @@ GLvoid open_random_maze(std::vector<std::vector<mountain>>& mountainList, const 
 
 objRead mountain::cuboid;
 GLuint mountain::vao = 0;
-GLuint mountain::vbo[2];
+GLuint mountain::vbo[3];
 GLfloat mountain::width = 0.0f;
 GLfloat mountain::length = 0.0f;
 GLboolean mountain::initAni = false;

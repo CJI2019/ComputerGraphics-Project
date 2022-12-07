@@ -58,7 +58,7 @@ Jewel::Jewel()
 		glBindVertexArray(Jewel::vao);
 
 		glBindBuffer(GL_ARRAY_BUFFER, Jewel::vbo[1]);
-		glBufferData(GL_ARRAY_BUFFER, Jewel::read_obj.color.size() * 3 * 4, Jewel::read_obj.color.data(), GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, Jewel::read_obj.outnormal.size() * 3 * 4, Jewel::read_obj.outnormal.data(), GL_STATIC_DRAW);
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(1);
 

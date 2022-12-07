@@ -12,7 +12,8 @@ private:
 	GLuint vbo[2];
 
 	std::vector<GLfloat> vertex;
-	std::vector<GLfloat> color;
+	//std::vector<GLfloat> color;
+	std::vector<GLfloat> normal;
 	glm::mat4 transformation;
 
 	glm::vec3 pos;
@@ -40,9 +41,10 @@ public:
 		look = glm::vec3(0.0f, 0.0f, 1.0f);
 
 		vertex = std::vector<GLfloat>(108);
-		color = std::vector<GLfloat>(108);
+		//color = std::vector<GLfloat>(108);
 		makeCuboid(vertex, mountain::width / 4, mountain::length / 4, 10.0f);
-		setCol(color, 0.3f, 0.5f, 0.8f);
+		set_normal();
+		//setCol(color, 0.3f, 0.5f, 0.8f);
 
 		camera_eye = glm::vec3(pos.x, pos.y, pos.z + mountain::width / 4);
 
@@ -52,7 +54,7 @@ public:
 		glBindVertexArray(vao);
 
 		glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
-		glBufferData(GL_ARRAY_BUFFER, color.size() * sizeof(GLfloat), color.data(), GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, normal.size() * sizeof(GLfloat), normal.data(), GL_STATIC_DRAW);
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(1);
 
@@ -67,6 +69,53 @@ public:
 
 	}
 
+	GLvoid set_normal()
+	{
+		normal = {
+		0.0f,0.0f,1.0f,
+		0.0f,0.0f,1.0f,
+		0.0f,0.0f,1.0f,
+		0.0f,0.0f,1.0f,
+		0.0f,0.0f,1.0f,
+		0.0f,0.0f,1.0f,
+
+		1.0f,0.0f,0.0f,
+		1.0f,0.0f,0.0f,
+		1.0f,0.0f,0.0f,
+		1.0f,0.0f,0.0f,
+		1.0f,0.0f,0.0f,
+		1.0f,0.0f,0.0f,
+
+		0.0f,0.0f,-1.0f,
+		0.0f,0.0f,-1.0f,
+		0.0f,0.0f,-1.0f,
+		0.0f,0.0f,-1.0f,
+		0.0f,0.0f,-1.0f,
+		0.0f,0.0f,-1.0f,
+
+		-1.0f,0.0f,0.0f,
+		-1.0f,0.0f,0.0f,
+		-1.0f,0.0f,0.0f,
+		-1.0f,0.0f,0.0f,
+		-1.0f,0.0f,0.0f,
+		-1.0f,0.0f,0.0f,
+
+		0.0f,1.0f,0.0f,
+		0.0f,1.0f,0.0f,
+		0.0f,1.0f,0.0f,
+		0.0f,1.0f,0.0f,
+		0.0f,1.0f,0.0f,
+		0.0f,1.0f,0.0f,
+
+		0.0f,-1.0f,0.0f,
+		0.0f,-1.0f,0.0f,
+		0.0f,-1.0f,0.0f,
+		0.0f,-1.0f,0.0f,
+		0.0f,-1.0f,0.0f,
+		0.0f,-1.0f,0.0f
+		};
+	}
+
 	GLvoid setDirection(int key, GLboolean down);
 	GLvoid set_speed(const GLfloat& delta);
 
@@ -79,13 +128,11 @@ public:
 	int get_row() const { return row; }
 	//glm::vec3 get_dir() const { return direction; }
 
-
 	GLvoid draw(unsigned int& modelLocation);
 	GLvoid reveal();
 	GLvoid move(const std::vector<std::vector<mountain>>& mountainList, Jewel** jewel);
 	GLboolean collide(const mountain& mountain_obj);
 	GLfloat* get_bb();
-
 
 	GLvoid change_camera_look(const glm::vec3& lookvector);
 };
