@@ -19,6 +19,7 @@ protected:
 	std::vector<int> paths;
 	int look[2];
 
+	int stun_time;
 
 	unsigned int vao = 0;
 public:
@@ -34,7 +35,7 @@ public:
 
 	GLvoid draw(unsigned int& modelLocation);
 	GLvoid update();
-
+	GLvoid stun();
 
 };
 
@@ -57,7 +58,7 @@ pac_man::pac_man()
 	transformation = glm::mat4(1.0f);
 	transformation = glm::translate(transformation, pos);
 	speed = 1.00f;
-
+	stun_time = 0;
 	setCol(color, 1.0f, 1.0f, 0.0f);
 
 	if (vao == 0)
@@ -105,6 +106,12 @@ pac_man::pac_man()
 		}
 	}
 }
+
+GLvoid pac_man::stun()
+{
+	if()
+}
+
 
 GLvoid pac_man::draw(unsigned int& modelLocation)
 {
