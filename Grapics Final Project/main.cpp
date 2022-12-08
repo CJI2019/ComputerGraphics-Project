@@ -81,6 +81,12 @@ glm::vec3 light_pos = { 0.0f, 300.0f, 0.0f };
 glm::vec3 light_color = glm::vec3(1.0f, 1.0f, 1.0f);
 //glm::mat4 light_trans = glm::mat4(1.0f);
 
+objRead hexahedron;
+
+glm::mat4 face[4];
+glm::mat4 modelceiling(1.0f);
+void wall_face_init();
+
 int main(int argc, char** argv)
 {
 	glutInit(&argc, argv);
@@ -132,7 +138,13 @@ int main(int argc, char** argv)
 			jewel[i][j].set_pos(mountain_list[i][j].pos, mountain_list[i][j].maze_state);
 		}
 	}
-	
+	//벽 경계면 초기화
+	wall_face_init();
+	modelceiling = glm::translate(modelceiling, glm::vec3(0.0f, 75.0f, 0.0f));
+	modelceiling = glm::scale(modelceiling, glm::vec3(500.0f, 1.0f, 500.0f));
+	modelceiling = glm::scale(modelceiling, glm::vec3(0.05f, 1.0f, 0.05f));
+	modelceiling = glm::translate(modelceiling, glm::vec3(0.0f, -25.0f, 0.0f)); // 천장 모델변환
+
 	//세이더 읽어와서 세이더 프로그램 만들기
 	shaderID = make_shaderProgram();	//세이더 프로그램 만들기
 	initBuffer();
@@ -168,7 +180,7 @@ int main(int argc, char** argv)
 	
 	projection = glm::mat4(1.0f);
 	//근평면은 포함이고 원평면은 포함X
-	projection = glm::perspective(glm::radians(60.0f), 1.0f, 0.1f, 500.0f);
+	projection = glm::perspective(glm::radians(60.0f), 1.0f, 0.1f, 5000.0f);
 	mini_projection = glm::mat4(1.0f);
 	mini_projection = glm::perspective(glm::radians(60.0f), 1.0f, 800.0f, 3000.0f);
 
@@ -177,7 +189,8 @@ int main(int argc, char** argv)
 
 GLvoid drawScene()
 {
-	glUniform3f(lightPosLocation, light_pos.x, light_pos.y, light_pos.z);
+	//glUniform3f(lightPosLocation, light_pos.x, light_pos.y, light_pos.z);
+	glUniform3f(lightPosLocation, mainObject->get_pos().x, mainObject->get_pos().y, mainObject->get_pos().z);
 	glUniform3f(lightColorLocation, light_color.x, light_color.y, light_color.z);
 	glUniform1f(ambientLocation, 0.7f);
 
@@ -191,8 +204,11 @@ GLvoid drawScene()
 	glViewport(0, 0, window_w, window_h);
 
 	//카메라 변환 적용
-	if (STATE::quarter_view)
+	if (STATE::quarter_view) {
+		camera_eye = glm::rotate(glm::mat4(1.0f), glm::radians(0.5f), glm::vec3(0.0f, 1.0f, 0.0f)) * glm::vec4(camera_eye, 1.0f);
+		camera = glm::lookAt(camera_eye, camera_look, glm::vec3(0.0f, 1.0f, 0.0f));
 		glUniformMatrix4fv(viewLocation, 1, GL_FALSE, glm::value_ptr(camera));
+	}
 	else
 		glUniformMatrix4fv(viewLocation, 1, GL_FALSE, glm::value_ptr(mainObject->get_camera()));
 
@@ -203,6 +219,18 @@ GLvoid drawScene()
 	glBindTexture(GL_TEXTURE_2D, texture[1]);
 	glUniform3f(objColorLocation, 0.3f, 0.3f, 0.3f);
 	mapFloor->draw(modelLocation);
+
+	//경계 벽
+	glBindTexture(GL_TEXTURE_2D, texture[0]);
+	glBindVertexArray(hexahedron.vao);
+	if (!STATE::quarter_view) {
+		glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(modelceiling));
+		glDrawArrays(GL_TRIANGLES, 0, hexahedron.outvertex.size());
+		for (int i = 0; i < 4; ++i) {
+			glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(face[i]));
+			glDrawArrays(GL_TRIANGLES, 0, hexahedron.outvertex.size());
+		}
+	}
 
 	//glBindTexture(GL_TEXTURE_2D, texture[3]);
 	glUniform3f(objColorLocation, 1.0f, 1.0f, 1.0f);
@@ -224,8 +252,13 @@ GLvoid drawScene()
 	//미니맵에서만 플레이어 객체 보임.
 	//mainObject->draw(modelLocation);
 
+	if (STATE::quarter_view) {
+		glutSwapBuffers();
+		return;
+	}
 
 	glViewport(window_w/8, window_h/8, 300, 300);
+	glUniform1f(ambientLocation, 5.0f);
 
 	glm::vec3 Player_location = mainObject->get_pos();
 	glm::vec3 minimap_cameraUp =
@@ -274,6 +307,13 @@ GLvoid Reshape(int w, int h)
 
 GLvoid TimeEvent(int value)
 {
+
+	if (STATE::quarter_view) {
+		glutPostRedisplay();
+		glutTimerFunc(10, TimeEvent, 0);
+		return;
+	}
+
 	mainObject->move(mountain_list, jewel);
 
 	if (test_chase_pac->stun())
@@ -320,6 +360,9 @@ GLvoid KeyEvent(unsigned char key, int x, int y)
 	}
 	else if (key == 'm') {
 		STATE::minnimap_On = (STATE::minnimap_On + 1) % 2;
+	}
+	else if (key == 's') {
+		STATE::quarter_view = false;
 	}
 }
 
@@ -398,6 +441,37 @@ GLvoid passiveMouseMotion(int x, int y)
 
 }
 
+void wall_face_init()
+{
+	face[0] = glm::mat4(1.0f);
+	face[0] = glm::translate(face[0], glm::vec3(0.0f, 0.0f, -500.0f - 25.0f));
+	face[0] = glm::scale(face[0], glm::vec3(1.0f, 0.1f, 1.0f));
+	face[0] = glm::rotate(face[0], glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	face[0] = glm::scale(face[0], glm::vec3(500.0f, 1.0f, 500.0f));
+	face[0] = glm::scale(face[0], glm::vec3(0.05f, 1.0f, 0.05f));
+	face[0] = glm::translate(face[0], glm::vec3(0.0f, -25.0f, 0.0f));
+
+	face[1] = glm::mat4(1.0f);
+	face[1] = glm::translate(face[1], glm::vec3(0.0f, 200.0f, +500.0f + 25.0f));
+	face[1] = glm::rotate(face[1], glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	face[1] = glm::scale(face[1], glm::vec3(500.0f, 1.0f, 500.0f));
+	face[1] = glm::scale(face[1], glm::vec3(0.05f, 1.0f, 0.05f));
+	face[1] = glm::translate(face[1], glm::vec3(0.0f, -25.0f, 0.0f));
+
+	face[2] = glm::mat4(1.0f);
+	face[2] = glm::translate(face[2], glm::vec3(500.0f + 25.0f, 200.0f, 0.0f));
+	face[2] = glm::rotate(face[2], glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	face[2] = glm::scale(face[2], glm::vec3(500.0f, 1.0f, 500.0f));
+	face[2] = glm::scale(face[2], glm::vec3(0.05f, 1.0f, 0.05f));
+	face[2] = glm::translate(face[2], glm::vec3(0.0f, -25.0f, 0.0f));
+
+	face[3] = glm::mat4(1.0f);
+	face[3] = glm::translate(face[3], glm::vec3(-500.0f - 25.0f, 200.0f, 0.0f));
+	face[3] = glm::rotate(face[3], glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	face[3] = glm::scale(face[3], glm::vec3(500.0f, 1.0f, 500.0f));
+	face[3] = glm::scale(face[3], glm::vec3(0.05f, 1.0f, 0.05f));
+	face[3] = glm::translate(face[3], glm::vec3(0.0f, -25.0f, 0.0f));
+}
 
 void initBuffer()
 {
@@ -415,4 +489,23 @@ void initBuffer()
 	glBufferData(GL_ARRAY_BUFFER, axes.axes_vertex.size() * sizeof(GLfloat), axes.axes_vertex.data(), GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(0);
+
+	hexahedron.loadObj_normalize_center("cuboid.obj");
+	glGenVertexArrays(1, &hexahedron.vao);
+	glGenBuffers(3, hexahedron.vbo);
+
+	glBindVertexArray(hexahedron.vao);
+	glBindBuffer(GL_ARRAY_BUFFER, hexahedron.vbo[0]);
+	glBufferData(GL_ARRAY_BUFFER, hexahedron.outvertex.size() * sizeof(GLfloat), hexahedron.outvertex.data(), GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, hexahedron.vbo[1]);
+	glBufferData(GL_ARRAY_BUFFER, hexahedron.outnormal.size() * sizeof(GLfloat), hexahedron.outnormal.data(), GL_STATIC_DRAW);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(1);
+	glBindBuffer(GL_ARRAY_BUFFER, hexahedron.vbo[2]);
+	glBufferData(GL_ARRAY_BUFFER, hexahedron.outuv.size() * sizeof(GLfloat), hexahedron.outuv.data(), GL_STATIC_DRAW);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(2);
+
 }
