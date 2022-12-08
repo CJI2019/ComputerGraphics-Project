@@ -352,6 +352,21 @@ GLvoid TimeEvent(int value)
 		test_wander_pac->reset();
 		test_chase_pac->reset();
 
+		for (int i = 0; i < mountain::rNum; i++)
+			delete[] jewel[i];
+		delete[] jewel;
+
+		jewel = new Jewel * [mountain::rNum];
+		for (int i = 0; i < mountain::rNum; ++i) {
+			jewel[i] = new Jewel[mountain::cNum];
+		}
+		for (int i = 0; i < mountain::rNum; ++i) {
+			for (int j = 0; j < mountain::cNum; ++j) {
+				jewel[i][j].set_pos(mountain_list[i][j].pos, mountain_list[i][j].maze_state);
+			}
+		}
+		Jewel::score = 0;
+
 
 		STATE::quarter_view = true;
 	}

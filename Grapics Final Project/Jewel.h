@@ -13,7 +13,7 @@ public:
 	static objRead read_obj;
 	static unsigned int vao;
 	static unsigned int vbo[2];
-
+	static int score;
 	//true 면 미로임. false 면 벽
 	GLboolean maze_state = true;
 
@@ -39,6 +39,7 @@ glm::mat4 Jewel::rotate_trans = glm::mat4(1.0f);
 objRead Jewel::read_obj;
 unsigned int Jewel::vao = 0;
 unsigned int Jewel::vbo[2];
+int Jewel::score;
 
 Jewel::Jewel()
 {
@@ -49,7 +50,7 @@ Jewel::Jewel()
 	size = 2.5f; angle = 0.0f;
 	transformation = glm::mat4(1.0f);
 	respawn_time = 0;
-
+	score = 0;
 	if (Jewel::vao == 0) {
 		Jewel::read_obj.loadObj_normalize_center("jewel.obj");
 
@@ -145,7 +146,13 @@ GLboolean Jewel::collision(GLfloat* move_obj_bb)
 	if (size == 5.0f) { // 거대 보석을 먹을때 몬스터 이벤트 처리 하면 됨.
 		delete_big_jewel();
 		pac_man::stun_time = 360;
+		score += 4;
 	}
+	score += 1;
+	std::cout << "======================= " << std::endl;
+	std::cout << "SCORE = " << score << std::endl;
+	std::cout << "======================= " << std::endl;
+
 	return true;
 }
 
