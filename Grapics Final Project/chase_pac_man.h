@@ -27,6 +27,7 @@ GLvoid chase_pac_man::set_path(const std::vector<std::vector<wall>>& w_list,cons
 {
 	paths = find_path(w_list, col, row, target_col, target_row);
 }
+
 GLvoid chase_pac_man::set_path(const std::vector<std::vector<wall>>& w_list, const move_obj& object)
 {
 	paths = find_path(w_list, col, row, object.get_col(), object.get_row());

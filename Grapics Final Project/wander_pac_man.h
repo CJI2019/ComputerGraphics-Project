@@ -28,6 +28,7 @@ public:
 	int get_miss_time() const { return miss_time; }
 
 	GLvoid print_time()const { std::cout << miss_time << std::endl; }
+	GLvoid reset();
 	GLvoid print_paths()
 	{
 		std::cout << paths.size() << std::endl;
@@ -43,6 +44,17 @@ wander_pac_man::wander_pac_man()
 {
 	pac_man();
 
+	std::uniform_int_distribution<int> dis(-1, 0);
+	direction[0] = dis(gen);
+	direction[1] = (direction[0] == 0) ? -1 : 0;
+	sight = 5;
+	look[0] = direction[0];
+	look[1] = direction[1];
+}
+
+GLvoid wander_pac_man::reset()
+{
+	pac_man::reset();
 	std::uniform_int_distribution<int> dis(-1, 0);
 	direction[0] = dis(gen);
 	direction[1] = (direction[0] == 0) ? -1 : 0;

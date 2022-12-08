@@ -26,7 +26,6 @@ protected:
 	std::vector<int> paths;
 	int look[2];
 
-
 	unsigned int vao_body = 0;
 	unsigned int vao_eye = 0;
 	unsigned int vao_eyebrow = 0;
@@ -212,8 +211,6 @@ GLfloat* pac_man::get_bb()
 	return bb;
 }
 
-
-
 bool pac_man::stun()
 {
 	if (stun_time <= 0)
@@ -239,6 +236,9 @@ GLvoid pac_man::reset()
 	pos.x = 480.0f;
 	pos.y = 0.0f;
 	pos.z = 480.0f;
+
+	paths.clear();
+	pac_man::stun_time = 0;
 }
 
 
