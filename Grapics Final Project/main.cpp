@@ -72,8 +72,8 @@ GLfloat lastX, lastY, yaw = -90.0f, pitch = 0.0f;
 
 Jewel** jewel;
 
-chase_pac_man* test_chase_pac;
-wander_pac_man* test_wander_pac;
+chase_pac_man* chase_pac;
+wander_pac_man* wander_pac;
 
 glm::vec3 light_pos = { 0.0f, 300.0f, 0.0f };
 glm::vec3 light_color = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -117,8 +117,8 @@ int main(int argc, char** argv)
 		}
 	}
 
-	test_chase_pac = new chase_pac_man();
-	test_wander_pac = new wander_pac_man();
+	chase_pac = new chase_pac_man();
+	wander_pac = new wander_pac_man();
 	mainObject = new move_obj();
 
 	set_maze(mountainMaze, mountain_list);
@@ -223,8 +223,8 @@ GLvoid drawScene()
 	}
 
 	glUniform3f(objColorLocation, 1.0f, 1.0f, 1.0f);
-	test_wander_pac->draw(modelLocation);
-	test_chase_pac->draw(modelLocation);
+	wander_pac->draw(modelLocation);
+	chase_pac->draw(modelLocation);
 
 	glBindTexture(GL_TEXTURE_2D, texture[0]);
 	for (int i = 0; i < mountain::cNum; ++i) {
@@ -269,8 +269,8 @@ GLvoid drawScene()
 		mainObject->draw(modelLocation);
 
 		glUniform3f(objColorLocation, 1.0f, 1.0f, 0.0f);
-		test_wander_pac->draw(modelLocation);
-		test_chase_pac->draw(modelLocation);
+		wander_pac->draw(modelLocation);
+		chase_pac->draw(modelLocation);
 		for (int i = 0; i < mountain::cNum; ++i) {
 			for (int j = 0; j < mountain::rNum; ++j) {
 				glUniform3f(objColorLocation, 0.0f, 0.0f, 0.0f);
@@ -302,31 +302,31 @@ GLvoid TimeEvent(int value)
 
 	mainObject->move(mountain_list, jewel);
 
-	if (test_chase_pac->stun())
+	if (chase_pac->stun())
 	{
-		test_chase_pac->set_path(mountain_list, *mainObject);
-		test_chase_pac->move();
+		chase_pac->set_path(mountain_list, *mainObject);
+		chase_pac->move();
 	}
 	
-	if (test_wander_pac->stun())
+	if (wander_pac->stun())
 	{
-		if (!test_wander_pac->set_path(mountain_list, *mainObject))
+		if (!wander_pac->set_path(mountain_list, *mainObject))
 		{
-			if (test_wander_pac->get_miss_time() == 0)
-				test_wander_pac->set_path(mountain_list);
+			if (wander_pac->get_miss_time() == 0)
+				wander_pac->set_path(mountain_list);
 			else
 			{
-				test_wander_pac->miss_time_gone();
+				wander_pac->miss_time_gone();
 			}
 		}
 		else
 		{
-			test_wander_pac->set_miss_time(100);
+			wander_pac->set_miss_time(100);
 		}
-		test_wander_pac->move();
+		wander_pac->move();
 	}
 
-	if (test_chase_pac->colide(mainObject->get_bb()) || test_wander_pac->colide(mainObject->get_bb()))
+	if (chase_pac->colide(mainObject->get_bb()) || wander_pac->colide(mainObject->get_bb()))
 	{
 		mountainMaze.ResetMaze();
 		mountain_list.clear();
@@ -349,8 +349,8 @@ GLvoid TimeEvent(int value)
 		set_maze(mountainMaze, mountain_list);
 		
 		mainObject->reset();
-		test_wander_pac->reset();
-		test_chase_pac->reset();
+		wander_pac->reset();
+		chase_pac->reset();
 
 		for (int i = 0; i < mountain::rNum; i++)
 			delete[] jewel[i];
@@ -366,7 +366,6 @@ GLvoid TimeEvent(int value)
 			}
 		}
 		Jewel::score = 0;
-
 
 		STATE::quarter_view = true;
 	}
