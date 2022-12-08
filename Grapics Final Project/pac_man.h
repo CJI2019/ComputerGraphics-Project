@@ -1,6 +1,6 @@
 #pragma once
 #include "make_Shader.h"
-#include "mountain.h"
+#include "wall.h"
 #include "find_path.h"
 #include "move_obj.h"
 

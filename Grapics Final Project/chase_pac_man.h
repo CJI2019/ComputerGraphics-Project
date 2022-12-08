@@ -9,8 +9,8 @@ public:
 
 	GLvoid set_col(const int& i_col) { col = i_col; }
 	GLvoid set_row(const int& i_row) { row = i_row; }
-	GLvoid set_path(const std::vector<std::vector<mountain>>& m_list, const int& target_col, const int& target_row); //경로를 설정한다.
-	GLvoid set_path(const std::vector<std::vector<mountain>>& m_list, const move_obj& object);
+	GLvoid set_path(const std::vector<std::vector<wall>>& w_list, const int& target_col, const int& target_row); //경로를 설정한다.
+	GLvoid set_path(const std::vector<std::vector<wall>>& w_list, const move_obj& object);
 
 	GLvoid move();
 	std::vector<int> get_paths() { return paths; }
@@ -23,13 +23,13 @@ chase_pac_man::chase_pac_man()
 	pac_man();
 }
 
-GLvoid chase_pac_man::set_path(const std::vector<std::vector<mountain>>& m_list,const int& target_col, const int& target_row)
+GLvoid chase_pac_man::set_path(const std::vector<std::vector<wall>>& w_list,const int& target_col, const int& target_row)
 {
-	paths = find_path(m_list, col, row, target_col, target_row);
+	paths = find_path(w_list, col, row, target_col, target_row);
 }
-GLvoid chase_pac_man::set_path(const std::vector<std::vector<mountain>>& m_list, const move_obj& object)
+GLvoid chase_pac_man::set_path(const std::vector<std::vector<wall>>& w_list, const move_obj& object)
 {
-	paths = find_path(m_list, col, row, object.get_col(), object.get_row());
+	paths = find_path(w_list, col, row, object.get_col(), object.get_row());
 }
 
 GLvoid chase_pac_man::move()

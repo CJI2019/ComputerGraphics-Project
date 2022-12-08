@@ -1,7 +1,7 @@
 #pragma once
 #include "all_include_file.h"
 #include "cuboid.h"
-#include "mountain.h"
+#include "wall.h"
 #include "state.h"
 #include "Jewel.h"
 
@@ -31,15 +31,15 @@ private:
 public:
 	move_obj()
 	{
-		pos = glm::vec3(-500.0f + mountain::width / 2, 10.0f, -500.0f + mountain::length / 2);
+		pos = glm::vec3(-500.0f + wall::width / 2, 10.0f, -500.0f + wall::length / 2);
 		oldPos = pos;
 		speed = 1.0f;
 		look = glm::vec3(0.0f, 0.0f, 1.0f);
 
 		vertex = std::vector<GLfloat>(108);
-		makeCuboid(vertex, mountain::width / 4, mountain::length / 4, 10.0f);
+		makeCuboid(vertex, wall::width / 4, wall::length / 4, 10.0f);
 		set_normal();
-		camera_eye = glm::vec3(pos.x, pos.y, pos.z + mountain::width / 4);
+		camera_eye = glm::vec3(pos.x, pos.y, pos.z + wall::width / 4);
 
 		glGenVertexArrays(1, &vao);
 		glGenBuffers(2, vbo);
@@ -119,8 +119,8 @@ public:
 	int get_row() const { return row; }
 
 	GLvoid draw(unsigned int& modelLocation);
-	GLvoid move(const std::vector<std::vector<mountain>>& mountainList, Jewel** jewel);
-	GLboolean collide(const mountain& mountain_obj);
+	GLvoid move(const std::vector<std::vector<wall>>& wallList, Jewel** jewel);
+	GLboolean collide(const wall& wall_obj);
 	GLfloat* get_bb();
 	GLvoid reset();
 
@@ -182,7 +182,7 @@ GLvoid move_obj::draw(unsigned int& modelLocation)
 }
 
 
-GLvoid move_obj::move(const std::vector<std::vector<mountain>>& mountainList, Jewel** jewel)
+GLvoid move_obj::move(const std::vector<std::vector<wall>>& wallList, Jewel** jewel)
 {
 	direction[0] = -(glm::normalize(glm::cross(look, glm::vec3(0.0f, 1.0f, 0.0f)))); //left
 	direction[1] = glm::normalize(glm::cross(look, glm::vec3(0.0f, 1.0f, 0.0f))); //right
@@ -197,11 +197,11 @@ GLvoid move_obj::move(const std::vector<std::vector<mountain>>& mountainList, Je
 		}
 	}
 
-	for (int i = 0; i < mountain::cNum; ++i)
+	for (int i = 0; i < wall::cNum; ++i)
 	{
-		for (int j = 0; j < mountain::rNum; ++j)
+		for (int j = 0; j < wall::rNum; ++j)
 		{
-			if (collide(mountainList[i][j])) {
+			if (collide(wallList[i][j])) {
 				pos.x = oldPos.x;
 				pos.z = oldPos.z;
 
@@ -211,7 +211,7 @@ GLvoid move_obj::move(const std::vector<std::vector<mountain>>& mountainList, Je
 					}
 				}
 
-				if (collide(mountainList[i][j])) {
+				if (collide(wallList[i][j])) {
 					pos.x = oldPos.x;
 					pos.z = oldPos.z;
 
@@ -221,7 +221,7 @@ GLvoid move_obj::move(const std::vector<std::vector<mountain>>& mountainList, Je
 						}
 					}
 
-					if (collide(mountainList[i][j])) {
+					if (collide(wallList[i][j])) {
 						pos.x = oldPos.x;
 						pos.z = oldPos.z;
 					}
@@ -252,22 +252,22 @@ GLfloat* move_obj::get_bb()
 {
 	GLfloat invisiblepart = 10.0f;//몸집을 카메라에 보이는 것 보다 작은 부위를 충돌 시킴
 	GLfloat bb[4] = {
-		pos.x - mountain::width / invisiblepart,
-		pos.x + mountain::width / invisiblepart,
-		pos.z - mountain::length / invisiblepart,
-		pos.z + mountain::length / invisiblepart
+		pos.x - wall::width / invisiblepart,
+		pos.x + wall::width / invisiblepart,
+		pos.z - wall::length / invisiblepart,
+		pos.z + wall::length / invisiblepart
 	};
 	return bb;
 }
 
-GLboolean move_obj::collide(const mountain& mountain_obj)
+GLboolean move_obj::collide(const wall& wall_obj)
 {
 	//자신과 충돌체크
 	//만약 자신이 미로가 아니면 true리턴
-	GLfloat minX = -500.0f + mountain::width * mountain_obj.get_index_r();
-	GLfloat maxX = minX + mountain::width;
-	GLfloat minZ = -500.0f + mountain::length * mountain_obj.get_index_c();
-	GLfloat maxZ = minZ + mountain::length;
+	GLfloat minX = -500.0f + wall::width * wall_obj.get_index_r();
+	GLfloat maxX = minX + wall::width;
+	GLfloat minZ = -500.0f + wall::length * wall_obj.get_index_c();
+	GLfloat maxZ = minZ + wall::length;
 
 	GLfloat* bb = get_bb();
 
@@ -276,7 +276,7 @@ GLboolean move_obj::collide(const mountain& mountain_obj)
 		|| bb[2] < -500.0f || bb[3] > 500.0f)
 		return true;
 
-	if (mountain_obj.maze_state)
+	if (wall_obj.maze_state)
 		return false;
 
 	if (bb[0] > maxX)
@@ -293,7 +293,7 @@ GLboolean move_obj::collide(const mountain& mountain_obj)
 
 GLvoid move_obj::reset()
 {
-	pos = glm::vec3(-500.0f + mountain::width / 2, 10.0f, -500.0f + mountain::length / 2);
+	pos = glm::vec3(-500.0f + wall::width / 2, 10.0f, -500.0f + wall::length / 2);
 	oldPos = pos;
 	speed = 1.0f;
 
