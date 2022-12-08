@@ -12,14 +12,12 @@ private:
 	GLuint vbo[2];
 
 	std::vector<GLfloat> vertex;
-	//std::vector<GLfloat> color;
 	std::vector<GLfloat> normal;
 	glm::mat4 transformation;
 
 	glm::vec3 pos;
 	glm::vec3 oldPos;
 	GLfloat speed;
-	GLboolean state;
 
 	glm::vec3 look;
 	glm::vec3 direction[4];
@@ -36,16 +34,11 @@ public:
 		pos = glm::vec3(-500.0f + mountain::width / 2, 10.0f, -500.0f + mountain::length / 2);
 		oldPos = pos;
 		speed = 1.0f;
-		state = false;
-		//direction[0] = { glm::vec3(0.0f, 0.0f, 0.0f) };
 		look = glm::vec3(0.0f, 0.0f, 1.0f);
 
 		vertex = std::vector<GLfloat>(108);
-		//color = std::vector<GLfloat>(108);
 		makeCuboid(vertex, mountain::width / 4, mountain::length / 4, 10.0f);
 		set_normal();
-		//setCol(color, 0.3f, 0.5f, 0.8f);
-
 		camera_eye = glm::vec3(pos.x, pos.y, pos.z + mountain::width / 4);
 
 		glGenVertexArrays(1, &vao);
@@ -65,7 +58,6 @@ public:
 
 		transformation = glm::mat4(1.0f);
 		transformation = glm::translate(transformation, pos);
-
 
 	}
 
@@ -119,20 +111,18 @@ public:
 	GLvoid setDirection(int key, GLboolean down);
 	GLvoid set_speed(const GLfloat& delta);
 
-	GLboolean get_state() const { return state; }
 	GLfloat get_speed() const { return speed; }
 	glm::vec3 get_look() const { return look; }
 	glm::mat4 get_camera() const { return camera; }
 	glm::vec3 get_pos() const { return pos; }
 	int get_col() const { return col; }
 	int get_row() const { return row; }
-	//glm::vec3 get_dir() const { return direction; }
 
 	GLvoid draw(unsigned int& modelLocation);
-	GLvoid reveal();
 	GLvoid move(const std::vector<std::vector<mountain>>& mountainList, Jewel** jewel);
 	GLboolean collide(const mountain& mountain_obj);
 	GLfloat* get_bb();
+	GLvoid reset();
 
 	GLvoid change_camera_look(const glm::vec3& lookvector);
 };
@@ -191,11 +181,6 @@ GLvoid move_obj::draw(unsigned int& modelLocation)
 	glDrawArrays(GL_TRIANGLES, 0, vertex.size() / 3);
 }
 
-
-GLvoid move_obj::reveal()
-{
-	state = true;
-}
 
 GLvoid move_obj::move(const std::vector<std::vector<mountain>>& mountainList, Jewel** jewel)
 {
@@ -306,6 +291,17 @@ GLboolean move_obj::collide(const mountain& mountain_obj)
 
 	return true;
 }
+
+GLvoid move_obj::reset()
+{
+	pos = glm::vec3(-500.0f + mountain::width / 2, 10.0f, -500.0f + mountain::length / 2);
+	oldPos = pos;
+	speed = 1.0f;
+
+	col = 0;
+	row = 0;
+}
+
 
 GLvoid move_obj::change_camera_look(const glm::vec3& lookvector)
 {

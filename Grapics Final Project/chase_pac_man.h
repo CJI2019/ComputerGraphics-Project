@@ -30,8 +30,6 @@ GLvoid chase_pac_man::set_path(const std::vector<std::vector<mountain>>& m_list,
 GLvoid chase_pac_man::set_path(const std::vector<std::vector<mountain>>& m_list, const move_obj& object)
 {
 	paths = find_path(m_list, col, row, object.get_col(), object.get_row());
-	old_col = col;
-	old_row = row;
 }
 
 GLvoid chase_pac_man::move()
@@ -39,8 +37,30 @@ GLvoid chase_pac_man::move()
 	int next_col = paths[0] - col;
 	int next_row = paths[1] - row;
 
-	//øﬁ¬ ¿Ãµø
-	if (next_col == 0 && next_row == -1)
+	if (next_col == 0 && next_row == 0)
+	{
+		if (look[0] == 0 && look[1] == 1)
+		{
+			if (pos.z < 20 + col * 40 - 500)
+				pos.z += speed;
+		}
+		else if (look[0] == 0 && look[1] == -1)
+		{
+			if (pos.z > 20 + col * 40 - 500)
+				pos.z -= speed;
+		}
+		else if (look[0] == 1 && look[1] == 0)
+		{
+			if (pos.x < 20 + row * 40 - 500)
+				pos.x += speed;
+		}
+		else if (look[0] == -1 && look[1] == 0)
+		{
+			if (pos.x > 20 + row * 40 - 500)
+				pos.x -= speed;
+		}
+	}//øﬁ¬ ¿Ãµø
+	else if (next_col == 0 && next_row == -1)
 	{
 		if (pos.z < 20 + col * 40 - 500)
 		{

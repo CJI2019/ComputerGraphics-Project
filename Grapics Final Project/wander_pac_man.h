@@ -62,7 +62,30 @@ GLvoid wander_pac_man::move()
 	int next_col = paths[0] - col;
 	int next_row = paths[1] - row;
 
-	if (next_col == 0 && next_row == -1)
+	if (next_col == 0 && next_row == 0)
+	{
+		if (look[0] == 0 && look[1] == 1)
+		{
+			if (pos.z < 20 + col * 40 - 500)
+				pos.z += speed;
+		}
+		else if (look[0] == 0 && look[1] == -1)
+		{
+			if (pos.z > 20 + col * 40 - 500)
+				pos.z -= speed;
+		}
+		else if (look[0] == 1 && look[1] == 0)
+		{
+			if (pos.x < 20 + row * 40 - 500)
+				pos.x += speed;
+		}
+		else if (look[0] == -1 && look[1] == 0)
+		{
+			if (pos.x > 20 + row * 40 - 500)
+				pos.x -= speed;
+		}
+	}
+	else if (next_col == 0 && next_row == -1)
 	{
 		if (pos.z < 20 + col * 40 - 500)
 		{

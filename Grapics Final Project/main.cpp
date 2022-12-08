@@ -1,7 +1,6 @@
 #define _USE_MATH_DEFINES
 #define _CRT_SECURE_NO_WARNINGS
 #include "read_Obj.h"
-#include "axes.h"
 #include "cuboid.h"
 #include "floor.h"
 #include "mountain.h"
@@ -39,6 +38,7 @@ unsigned int lightColorLocation;
 unsigned int objColorLocation;
 unsigned int viewPosLocation;
 unsigned int ambientLocation;
+unsigned int textureLocation;
 
 glm::mat4 camera;
 glm::vec3 camera_eye = glm::vec3(700.0f, 800.0f, 700.0f);
@@ -55,7 +55,6 @@ glm::mat4 view;
 
 GLuint vao;
 GLuint vbo_axes[2];
-axes_coordination axes;
 
 map_floor* mapFloor;
 GLuint vao_floor;
@@ -98,12 +97,9 @@ int main(int argc, char** argv)
 	glewInit();
 	glutSetCursor(GLUT_CURSOR_NONE); // 마우스 커서를 안보이게 한다.
 
-
 	mountain::rNum = 25;
 	mountain::cNum = 25;
 	mapFloor = new map_floor(mountain::rNum, mountain::cNum);
-
-	//mapFloor.set_floor(mountain::rNum, mountain::cNum);
 
 	mountainMaze.initialize((mountain::rNum + 1) / 2, (mountain::cNum + 1) / 2);
 	while(!maze::completeGenerate)
@@ -126,7 +122,6 @@ int main(int argc, char** argv)
 	mainObject = new move_obj();
 
 	set_maze(mountainMaze, mountain_list);
-	mainObject->reveal();
 
 	jewel = new Jewel*[mountain::rNum];
 	for (int i = 0; i < mountain::rNum; ++i) {
@@ -137,13 +132,13 @@ int main(int argc, char** argv)
 			jewel[i][j].set_pos(mountain_list[i][j].pos, mountain_list[i][j].maze_state);
 		}
 	}
-
 	//벽 경계면 초기화
 	wall_face_init();
 	modelceiling = glm::translate(modelceiling, glm::vec3(0.0f, 75.0f, 0.0f));
 	modelceiling = glm::scale(modelceiling, glm::vec3(500.0f, 1.0f, 500.0f));
 	modelceiling = glm::scale(modelceiling, glm::vec3(0.05f, 1.0f, 0.05f));
 	modelceiling = glm::translate(modelceiling, glm::vec3(0.0f, -25.0f, 0.0f)); // 천장 모델변환
+
 	//세이더 읽어와서 세이더 프로그램 만들기
 	shaderID = make_shaderProgram();	//세이더 프로그램 만들기
 	initBuffer();
@@ -172,7 +167,6 @@ int main(int argc, char** argv)
 	viewPosLocation = glGetUniformLocation(shaderID, "cameraEye");     //--- viewPos 값 전달: 카메라 위치 
 	ambientLocation = glGetUniformLocation(shaderID, "ambientLight");
 
-
 	camera = glm::lookAt(camera_eye, camera_look, glm::vec3(0.0f, 1.0f, 0.0f));
 	
 	projection = glm::mat4(1.0f);
@@ -186,11 +180,10 @@ int main(int argc, char** argv)
 
 GLvoid drawScene()
 {
-	//glUniform3f(lightPosLocation, light_pos.x, light_pos.y, light_pos.z);
 	glUniform3f(lightPosLocation, mainObject->get_pos().x, mainObject->get_pos().y, mainObject->get_pos().z);
 	glUniform3f(lightColorLocation, light_color.x, light_color.y, light_color.z);
 	glUniform1f(ambientLocation, 0.7f);
-	
+
 	glEnable(GL_DEPTH_TEST);
 	glClearColor(rColor, gColor, bColor, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -211,16 +204,12 @@ GLvoid drawScene()
 
 	//투영 변환 적용
 	glUniformMatrix4fv(projLocation, 1, GL_FALSE, glm::value_ptr(projection));
-	
-	//좌표축 그리기
-	//modelLocation = glGetUniformLocation(shaderID, "modelTransform");
-	//glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(axes.transformation));
-	//glBindVertexArray(vao);
-	//glDrawArrays(GL_LINES, 0, 6);
 
 	//바닥 그리기
+	glBindTexture(GL_TEXTURE_2D, texture[1]);
 	glUniform3f(objColorLocation, 0.3f, 0.3f, 0.3f);
 	mapFloor->draw(modelLocation);
+
 	//경계 벽
 	glBindTexture(GL_TEXTURE_2D, texture[0]);
 	glBindVertexArray(hexahedron.vao);
@@ -233,7 +222,7 @@ GLvoid drawScene()
 		}
 	}
 
-	glUniform3f(objColorLocation, 1.0f, 1.0f, 0.0f);
+	glUniform3f(objColorLocation, 1.0f, 1.0f, 1.0f);
 	test_wander_pac->draw(modelLocation);
 	test_chase_pac->draw(modelLocation);
 
@@ -250,12 +239,12 @@ GLvoid drawScene()
 	}
 	
 	//미니맵에서만 플레이어 객체 보임.
-	//mainObject->draw(modelLocation);
 
 	if (STATE::quarter_view) {
 		glutSwapBuffers();
 		return;
 	}
+
 	glViewport(window_w/8, window_h/8, 300, 300);
 	glUniform1f(ambientLocation, 5.0f);
 
@@ -267,13 +256,13 @@ GLvoid drawScene()
 	topViewCamera = glm::lookAt( tVCamra_eye,
 		Player_location + glm::vec3(0.0f, -1.0f, 0.0f),	minimap_cameraUp);
 
-	//glDisable(GL_DEPTH_TEST);
-
 	glUniformMatrix4fv(projLocation, 1, GL_FALSE, glm::value_ptr(mini_projection));
+
 	glUniformMatrix4fv(viewLocation, 1, GL_FALSE, glm::value_ptr(topViewCamera));
 
 	if (STATE::minnimap_On) {
-		glUniform3f(objColorLocation, 0.1f, 0.1f, 0.1f);
+		glBindTexture(GL_TEXTURE_2D, texture[1]);
+		glUniform3f(objColorLocation, 1.0f, 1.0f, 1.0f);
 		mapFloor->draw(modelLocation);
 
 		glUniform3f(objColorLocation, 0.3f, 0.5f, 0.8f);
@@ -284,7 +273,7 @@ GLvoid drawScene()
 		test_chase_pac->draw(modelLocation);
 		for (int i = 0; i < mountain::cNum; ++i) {
 			for (int j = 0; j < mountain::rNum; ++j) {
-				glUniform3f(objColorLocation, 0.1f, 0.1f, 0.1f);
+				glUniform3f(objColorLocation, 0.0f, 0.0f, 0.0f);
 				mountain_list[i][j].drawMaze(modelLocation);
 				glUniform3f(objColorLocation, 0.55f, 0.0f, 1.0f);
 				if (jewel[i][j].status_draw) {
@@ -304,34 +293,83 @@ GLvoid Reshape(int w, int h)
 
 GLvoid TimeEvent(int value)
 {
+
 	if (STATE::quarter_view) {
 		glutPostRedisplay();
 		glutTimerFunc(10, TimeEvent, 0);
 		return;
 	}
+
 	mainObject->move(mountain_list, jewel);
 
-	if (test_chase_pac->get_col() != 0 || test_chase_pac->get_row() != 0)
-		test_chase_pac->set_path(mountain_list, *mainObject);
-	test_chase_pac->move();
-
-	
-	if (!test_wander_pac->set_path(mountain_list, *mainObject))
+	if (test_chase_pac->stun())
 	{
-		if (test_wander_pac->get_miss_time() == 0)
-			test_wander_pac->set_path(mountain_list);
+		test_chase_pac->set_path(mountain_list, *mainObject);
+		test_chase_pac->move();
+	}
+	
+	if (test_wander_pac->stun())
+	{
+		if (!test_wander_pac->set_path(mountain_list, *mainObject))
+		{
+			if (test_wander_pac->get_miss_time() == 0)
+				test_wander_pac->set_path(mountain_list);
+			else
+			{
+				test_wander_pac->miss_time_gone();
+			}
+		}
 		else
 		{
-			test_wander_pac->miss_time_gone();
+			test_wander_pac->set_miss_time(100);
 		}
+		test_wander_pac->move();
 	}
-	else
-	{
-		test_wander_pac->set_miss_time(100);
-	}
-	//test_wander_pac->print_time();
-	test_wander_pac->move();
 
+	if (test_chase_pac->colide(mainObject->get_bb()) || test_wander_pac->colide(mainObject->get_bb()))
+	{
+		mountainMaze.ResetMaze();
+		mountain_list.clear();
+		mapFloor->reset();
+
+		mapFloor->set_floor(mountain::rNum, mountain::cNum);
+		mountainMaze.initialize((mountain::rNum + 1) / 2, (mountain::cNum + 1) / 2);
+		while (!maze::completeGenerate)
+			mountainMaze.generator();
+
+		mountain_list = std::vector<std::vector<mountain>>(mountain::cNum);
+		for (int i = 0; i < mountain::cNum; ++i)
+		{
+			for (int j = 0; j < mountain::rNum; ++j)
+			{
+				mountain_list[i].push_back(mountain(j, i));
+			}
+		}
+
+		set_maze(mountainMaze, mountain_list);
+		
+		mainObject->reset();
+		test_wander_pac->reset();
+		test_chase_pac->reset();
+
+		for (int i = 0; i < mountain::rNum; i++)
+			delete[] jewel[i];
+		delete[] jewel;
+
+		jewel = new Jewel * [mountain::rNum];
+		for (int i = 0; i < mountain::rNum; ++i) {
+			jewel[i] = new Jewel[mountain::cNum];
+		}
+		for (int i = 0; i < mountain::rNum; ++i) {
+			for (int j = 0; j < mountain::cNum; ++j) {
+				jewel[i][j].set_pos(mountain_list[i][j].pos, mountain_list[i][j].maze_state);
+			}
+		}
+		Jewel::score = 0;
+
+
+		STATE::quarter_view = true;
+	}
 
 
 	glutPostRedisplay();
@@ -462,23 +500,8 @@ void wall_face_init()
 	face[3] = glm::translate(face[3], glm::vec3(0.0f, -25.0f, 0.0f));
 }
 
-
 void initBuffer()
 {
-	glGenVertexArrays(1, &vao);
-	glGenBuffers(2, vbo_axes);
-
-	glBindVertexArray(vao);
-	
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_axes[1]);
-	glBufferData(GL_ARRAY_BUFFER, axes.axes_color.size() * sizeof(GLfloat), axes.axes_color.data(), GL_STATIC_DRAW);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(1);
-
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_axes[0]);
-	glBufferData(GL_ARRAY_BUFFER, axes.axes_vertex.size() * sizeof(GLfloat), axes.axes_vertex.data(), GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(0);
 
 	hexahedron.loadObj_normalize_center("cuboid.obj");
 	glGenVertexArrays(1, &hexahedron.vao);
@@ -497,4 +520,5 @@ void initBuffer()
 	glBufferData(GL_ARRAY_BUFFER, hexahedron.outuv.size() * sizeof(GLfloat), hexahedron.outuv.data(), GL_STATIC_DRAW);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(2);
+
 }

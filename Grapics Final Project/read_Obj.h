@@ -68,6 +68,7 @@ int objRead::loadObj_normalize_center(const char* filename)
 		else if (strcmp(lineHeader, "vt") == 0) {
 			glm::vec2 uv;
 			fscanf_s(objFile, "%f %f\n", &uv.x, &uv.y);
+			//if(filename == "test.obj") uv.y = 1 + uv.y;
 			temp_uvs.push_back(uv);
 		}
 		else if (strcmp(lineHeader, "vn") == 0) {

@@ -22,7 +22,7 @@ void main(void)
 	vec3 Normal = out_Normal;
 
 	//앰비언트 (주변조명(간접조명))
-	//float ambientLight = 0.5;                                               //--- 주변 조명 계수: 0.0 ≤ ambientLight ≤ 1.0 
+	//float ambientLight = 0.5;                                             //--- 주변 조명 계수: 0.0 ≤ ambientLight ≤ 1.0 
 	vec3 ambient = ambientLight * lightColor;							    //--- 주변 조명값
 
 	vec3 distence = (lightPos - FragPos); // 거리
@@ -30,7 +30,7 @@ void main(void)
 
 	vec3 length_color = lightColor / (length / 30);
 
-	
+
 	//디퓨즈 (산란 반사 조명)
 	vec3 normalVector = normalize(Normal);							// 노말값 정규화
 
@@ -38,10 +38,10 @@ void main(void)
 	
 	float diffuseLight = max(dot(normalVector, lightDir), 0.0);		// N과 L의 내적 값으로 강도 조절 (음의 값을 가질 수 없게 한다.) 
 	//vec3 diffuse = diffuseLight * lightColor;						// 산란반사조명값 = 산란반사값 * 조명색상값
-	vec3 diffuse = diffuseLight * (length_color);
+	vec3 diffuse = diffuseLight * (length_color);						// 산란반사조명값 = 산란반사값 * 조명색상값
 	
 	//스팩큘러 (거울 반사 조명)
-	int shininess = 64;											// 광택(매끄러움) 계수
+	int shininess = 64;										// 광택(매끄러움) 계수
 	vec3 viewDir = normalize(cameraEye - FragPos);					// 관찰자 방향 설정
 	vec3 reflectDir = reflect(-lightDir, normalVector);				// 반사 방향: reflect 함수 - 입사 벡터의 반사 방향 계산 
 	float specularLight = max(dot(viewDir, reflectDir), 0.0);		// 관찰 방향과 반사 방향의 내적 값으로 강도 조절
@@ -52,7 +52,8 @@ void main(void)
 	vec3 result = (ambient + diffuse + specular) * objectColor;		// 객체의 색과 주변조명값을 곱하여 최종 객체 색상 설정
 
 	FragColor = vec4 (result , 1.0);
+
 	if(out_Texture.x >= 0){
-		FragColor = texture(outTexture, out_Texture) * FragColor;
+		FragColor = texture(outTexture, out_Texture)  * FragColor;
 	}
 }

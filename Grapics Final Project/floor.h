@@ -7,8 +7,8 @@ class map_floor
 private:
 	int row_num, col_num;
 	std::vector<GLfloat> vertex;
-	//std::vector<GLfloat> color;
 	std::vector<GLfloat> normal;
+	std::vector<GLfloat> uv;
 	glm::mat4 transformation;
 
 	GLfloat width, length;
@@ -21,12 +21,11 @@ public:
 	 
 	GLvoid set_floor(const int& i_width, const int& i_height);
 	GLvoid set_vertex();
-	//GLvoid set_color();
 	GLvoid set_normal();
+	GLvoid set_uv();
 	GLvoid draw(unsigned int& modelLocation);
 
 	std::vector<GLfloat> get_vertex() const { return vertex; }
-	//std::vector<GLfloat> get_color() const { return color; }
 	std::vector<GLfloat> get_normal() const { return normal; }
 	glm::mat4 get_transformation() { return transformation; }
 	GLfloat* get_ptr_transformation() { return &transformation[0][0]; }
@@ -51,14 +50,19 @@ map_floor::map_floor(const unsigned int& i_row = 5, const unsigned int& i_col = 
 	length = 1000.0f / col_num;
 
 	set_vertex();
-	//set_color();
 	set_normal();
+	set_uv();
 	transformation = glm::mat4(1.0f);
 
 	glGenVertexArrays(1, &vao);
 	glGenBuffers(3, vbo);
 
 	glBindVertexArray(vao);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[2]);
+	glBufferData(GL_ARRAY_BUFFER, uv.size() * sizeof(GLfloat), uv.data(), GL_STATIC_DRAW);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(2);
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
 	glBufferData(GL_ARRAY_BUFFER, normal.size() * sizeof(GLfloat), normal.data(), GL_STATIC_DRAW);
@@ -107,33 +111,6 @@ GLvoid map_floor::set_vertex()
 	vertex.push_back(500.0f);
 }
 
-//GLvoid map_floor::set_color()
-//{
-//	color.push_back(0.7f);
-//	color.push_back(0.7f);
-//	color.push_back(0.7f);
-//
-//	color.push_back(0.7f);
-//	color.push_back(0.7f);
-//	color.push_back(0.7f);
-//
-//	color.push_back(0.7f);
-//	color.push_back(0.7f);
-//	color.push_back(0.7f);
-//
-//	color.push_back(0.7f);
-//	color.push_back(0.7f);
-//	color.push_back(0.7f);
-//
-//	color.push_back(0.7f);
-//	color.push_back(0.7f);
-//	color.push_back(0.7f);
-//
-//	color.push_back(0.7f);
-//	color.push_back(0.7f);
-//	color.push_back(0.7f);
-//}
-
 GLvoid map_floor::set_normal()
 {
 	normal.push_back(0.0f);
@@ -161,6 +138,26 @@ GLvoid map_floor::set_normal()
 	normal.push_back(0.0f);
 }
 
+GLvoid map_floor::set_uv()
+{
+	uv.push_back(25.0f);
+	uv.push_back(25.0f);
+	
+	uv.push_back(25.0f);
+	uv.push_back(0.0f);
+
+	uv.push_back(0.0f);
+	uv.push_back(25.0f);
+
+	uv.push_back(25.0f);
+	uv.push_back(0.0f);
+
+	uv.push_back(0.0f);
+	uv.push_back(0.0f);
+
+	uv.push_back(0.0f);
+	uv.push_back(25.0f);
+}
 
 GLvoid map_floor::draw(unsigned int& modelLocation)
 {
