@@ -60,6 +60,7 @@ public:
 		return true;
 	}
 	bool stun();
+	GLvoid reset();
 
 };
 int pac_man::stun_time = 0;
@@ -226,6 +227,18 @@ bool pac_man::stun()
 	transformation = glm::rotate(transformation, glm::radians(4.0f), { 0.0f, 1.0f, 0.0f });
 
 	return false;
+}
+
+GLvoid pac_man::reset()
+{
+	col = 24;
+	row = 24;
+	old_col = col;
+	old_row = row;
+
+	pos.x = 480.0f;
+	pos.y = 0.0f;
+	pos.z = 480.0f;
 }
 
 

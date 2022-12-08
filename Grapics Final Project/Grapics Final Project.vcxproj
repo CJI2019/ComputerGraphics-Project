@@ -20,7 +20,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="all_include_file.h" />
-    <ClInclude Include="axes.h" />
     <ClInclude Include="chase_pac_man.h" />
     <ClInclude Include="cuboid.h" />
     <ClInclude Include="find_path.h" />
@@ -106,7 +105,6 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalOptions>glew32.lib freeglut.lib %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

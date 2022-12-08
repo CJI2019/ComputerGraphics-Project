@@ -1,7 +1,6 @@
 #define _USE_MATH_DEFINES
 #define _CRT_SECURE_NO_WARNINGS
 #include "read_Obj.h"
-#include "axes.h"
 #include "cuboid.h"
 #include "floor.h"
 #include "mountain.h"
@@ -56,7 +55,6 @@ glm::mat4 view;
 
 GLuint vao;
 GLuint vbo_axes[2];
-axes_coordination axes;
 
 map_floor* mapFloor;
 GLuint vao_floor;
@@ -99,12 +97,9 @@ int main(int argc, char** argv)
 	glewInit();
 	glutSetCursor(GLUT_CURSOR_NONE); // 마우스 커서를 안보이게 한다.
 
-
 	mountain::rNum = 25;
 	mountain::cNum = 25;
 	mapFloor = new map_floor(mountain::rNum, mountain::cNum);
-
-	//mapFloor.set_floor(mountain::rNum, mountain::cNum);
 
 	mountainMaze.initialize((mountain::rNum + 1) / 2, (mountain::cNum + 1) / 2);
 	while(!maze::completeGenerate)
@@ -127,7 +122,6 @@ int main(int argc, char** argv)
 	mainObject = new move_obj();
 
 	set_maze(mountainMaze, mountain_list);
-	mainObject->reveal();
 
 	jewel = new Jewel*[mountain::rNum];
 	for (int i = 0; i < mountain::rNum; ++i) {
@@ -189,7 +183,6 @@ int main(int argc, char** argv)
 
 GLvoid drawScene()
 {
-	//glUniform3f(lightPosLocation, light_pos.x, light_pos.y, light_pos.z);
 	glUniform3f(lightPosLocation, mainObject->get_pos().x, mainObject->get_pos().y, mainObject->get_pos().z);
 	glUniform3f(lightColorLocation, light_color.x, light_color.y, light_color.z);
 	glUniform1f(ambientLocation, 0.7f);
@@ -232,7 +225,6 @@ GLvoid drawScene()
 		}
 	}
 
-	//glBindTexture(GL_TEXTURE_2D, texture[3]);
 	glUniform3f(objColorLocation, 1.0f, 1.0f, 1.0f);
 	test_wander_pac->draw(modelLocation);
 	test_chase_pac->draw(modelLocation);
@@ -250,7 +242,6 @@ GLvoid drawScene()
 	}
 	
 	//미니맵에서만 플레이어 객체 보임.
-	//mainObject->draw(modelLocation);
 
 	if (STATE::quarter_view) {
 		glutSwapBuffers();
@@ -267,8 +258,6 @@ GLvoid drawScene()
 	tVCamra_eye = glm::vec3(Player_location.x, 1000.0f, Player_location.z);
 	topViewCamera = glm::lookAt( tVCamra_eye,
 		Player_location + glm::vec3(0.0f, -1.0f, 0.0f),	minimap_cameraUp);
-
-	//glDisable(GL_DEPTH_TEST);
 
 	glUniformMatrix4fv(projLocation, 1, GL_FALSE, glm::value_ptr(mini_projection));
 
@@ -342,8 +331,37 @@ GLvoid TimeEvent(int value)
 
 	if (test_chase_pac->colide(mainObject->get_bb()) || test_wander_pac->colide(mainObject->get_bb()))
 	{
-		std::cout << "end";
+		//std::cout << "end";
+		//char a;
+		//std::cin >> a;
+		mountainMaze.ResetMaze();
+		mountain_list.clear();
+		mapFloor->reset();
+
+		mapFloor->set_floor(mountain::rNum, mountain::cNum);
+		mountainMaze.initialize((mountain::rNum + 1) / 2, (mountain::cNum + 1) / 2);
+		while (!maze::completeGenerate)
+			mountainMaze.generator();
+
+		mountain_list = std::vector<std::vector<mountain>>(mountain::cNum);
+		for (int i = 0; i < mountain::cNum; ++i)
+		{
+			for (int j = 0; j < mountain::rNum; ++j)
+			{
+				mountain_list[i].push_back(mountain(j, i));
+			}
+		}
+
+		set_maze(mountainMaze, mountain_list);
+		
+		mainObject->reset();
+		test_wander_pac->reset();
+		test_chase_pac->reset();
+
+
+		STATE::quarter_view = true;
 	}
+
 
 	glutPostRedisplay();
 	glutTimerFunc(10, TimeEvent, 0);
@@ -475,20 +493,6 @@ void wall_face_init()
 
 void initBuffer()
 {
-	glGenVertexArrays(1, &vao);
-	glGenBuffers(2, vbo_axes);
-
-	glBindVertexArray(vao);
-	
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_axes[1]);
-	glBufferData(GL_ARRAY_BUFFER, axes.axes_color.size() * sizeof(GLfloat), axes.axes_color.data(), GL_STATIC_DRAW);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(1);
-
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_axes[0]);
-	glBufferData(GL_ARRAY_BUFFER, axes.axes_vertex.size() * sizeof(GLfloat), axes.axes_vertex.data(), GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(0);
 
 	hexahedron.loadObj_normalize_center("cuboid.obj");
 	glGenVertexArrays(1, &hexahedron.vao);
