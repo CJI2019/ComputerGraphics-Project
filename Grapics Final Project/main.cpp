@@ -166,9 +166,6 @@ int main(int argc, char** argv)
 	objColorLocation = glGetUniformLocation(shaderID, "objectColor");  //주황색 반사
 	viewPosLocation = glGetUniformLocation(shaderID, "cameraEye");     //--- viewPos 값 전달: 카메라 위치 
 	ambientLocation = glGetUniformLocation(shaderID, "ambientLight");
-	//texture1Location = glGetUniformLocation(shaderID, "outTexture1");
-
-
 
 	camera = glm::lookAt(camera_eye, camera_look, glm::vec3(0.0f, 1.0f, 0.0f));
 	
@@ -331,9 +328,6 @@ GLvoid TimeEvent(int value)
 
 	if (test_chase_pac->colide(mainObject->get_bb()) || test_wander_pac->colide(mainObject->get_bb()))
 	{
-		//std::cout << "end";
-		//char a;
-		//std::cin >> a;
 		mountainMaze.ResetMaze();
 		mountain_list.clear();
 		mapFloor->reset();
