@@ -33,7 +33,7 @@ public:
 	{
 		pos = glm::vec3(-500.0f + wall::width / 2, 10.0f, -500.0f + wall::length / 2);
 		oldPos = pos;
-		speed = 1.0f;
+		speed = 0.9f;
 		look = glm::vec3(0.0f, 0.0f, 1.0f);
 
 		vertex = std::vector<GLfloat>(108);
@@ -295,12 +295,11 @@ GLvoid move_obj::reset()
 {
 	pos = glm::vec3(-500.0f + wall::width / 2, 10.0f, -500.0f + wall::length / 2);
 	oldPos = pos;
-	speed = 1.0f;
+	speed = 0.9f;
 
 	col = 0;
 	row = 0;
 }
-
 
 GLvoid move_obj::change_camera_look(const glm::vec3& lookvector)
 {

@@ -1,5 +1,10 @@
 #define _USE_MATH_DEFINES
 #define _CRT_SECURE_NO_WARNINGS
+#include <windows.h>
+#pragma comment (lib, "winmm.lib")
+#include <mmsystem.h>;
+
+
 #include "read_Obj.h"
 #include "cuboid.h"
 #include "floor.h"
@@ -87,6 +92,8 @@ void wall_face_init();
 
 int main(int argc, char** argv)
 {
+	PlaySound(TEXT("bgm/tilte_bgm.wav"), 0, SND_FILENAME | SND_ASYNC | SND_LOOP);
+
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 	glutInitWindowPosition(300, 50);
@@ -327,6 +334,8 @@ GLvoid TimeEvent(int value)
 
 	if (chase_pac->colide(mainObject->get_bb()) || wander_pac->colide(mainObject->get_bb()))
 	{
+		PlaySound(TEXT("bgm/tilte_bgm.wav"), 0, SND_FILENAME | SND_ASYNC | SND_LOOP);
+
 		wallMaze.ResetMaze();
 		wall_list.clear();
 		mapFloor->reset();
@@ -387,6 +396,8 @@ GLvoid KeyEvent(unsigned char key, int x, int y)
 		STATE::minnimap_On = (STATE::minnimap_On + 1) % 2;
 	}
 	else if (key == 's') {
+		if(STATE::quarter_view)
+			PlaySound(TEXT("bgm/game_bgm.wav"), 0, SND_FILENAME | SND_ASYNC | SND_LOOP);
 		STATE::quarter_view = false;
 	}
 }
