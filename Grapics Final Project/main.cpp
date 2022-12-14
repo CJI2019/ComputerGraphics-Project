@@ -1,9 +1,14 @@
 #define _USE_MATH_DEFINES
 #define _CRT_SECURE_NO_WARNINGS
+#include <windows.h>
+#pragma comment (lib, "winmm.lib")
+#include <mmsystem.h>;
+
+
 #include "read_Obj.h"
 #include "cuboid.h"
 #include "floor.h"
-#include "mountain.h"
+#include "wall.h"
 #include "move_obj.h"
 #include "my_maze.h"
 #include "state.h"
@@ -60,9 +65,9 @@ map_floor* mapFloor;
 GLuint vao_floor;
 GLuint vbo_floor[2];
 
-std::vector<std::vector<mountain>> mountain_list;
+std::vector<std::vector<wall>> wall_list;
 
-maze mountainMaze;
+maze wallMaze;
 
 move_obj* mainObject;
 
@@ -72,11 +77,11 @@ GLfloat lastX, lastY, yaw = -90.0f, pitch = 0.0f;
 
 Jewel** jewel;
 
-chase_pac_man* test_chase_pac;
-wander_pac_man* test_wander_pac;
+chase_pac_man* chase_pac;
+wander_pac_man* wander_pac;
 
 glm::vec3 light_pos = { 0.0f, 300.0f, 0.0f };
-glm::vec3 light_color = glm::vec3(1.0f, 1.0f, 1.0f);
+glm::vec3 light_color = glm::vec3(0.9f, 0.9f, 0.9f);
 //glm::mat4 light_trans = glm::mat4(1.0f);
 
 objRead hexahedron;
@@ -87,6 +92,8 @@ void wall_face_init();
 
 int main(int argc, char** argv)
 {
+	PlaySound(TEXT("bgm/tilte_bgm.wav"), 0, SND_FILENAME | SND_ASYNC | SND_LOOP);
+
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 	glutInitWindowPosition(300, 50);
@@ -97,39 +104,39 @@ int main(int argc, char** argv)
 	glewInit();
 	glutSetCursor(GLUT_CURSOR_NONE); // 마우스 커서를 안보이게 한다.
 
-	mountain::rNum = 25;
-	mountain::cNum = 25;
-	mapFloor = new map_floor(mountain::rNum, mountain::cNum);
+	wall::rNum = 25;
+	wall::cNum = 25;
+	mapFloor = new map_floor(wall::rNum, wall::cNum);
 
-	mountainMaze.initialize((mountain::rNum + 1) / 2, (mountain::cNum + 1) / 2);
+	wallMaze.initialize((wall::rNum + 1) / 2, (wall::cNum + 1) / 2);
 	while(!maze::completeGenerate)
-		mountainMaze.generator();
+		wallMaze.generator();
 
-	mountain::length = mapFloor->get_length();
-	mountain::width = mapFloor->get_width();
+	wall::length = mapFloor->get_length();
+	wall::width = mapFloor->get_width();
 
-	mountain_list = std::vector<std::vector<mountain>>(mountain::cNum);
-	for (int i = 0; i < mountain::cNum; ++i)
+	wall_list = std::vector<std::vector<wall>>(wall::cNum);
+	for (int i = 0; i < wall::cNum; ++i)
 	{		
-		for (int j = 0; j < mountain::rNum; ++j)
+		for (int j = 0; j < wall::rNum; ++j)
 		{
-			mountain_list[i].push_back(mountain(j, i));
+			wall_list[i].push_back(wall(j, i));
 		}
 	}
 
-	test_chase_pac = new chase_pac_man();
-	test_wander_pac = new wander_pac_man();
+	chase_pac = new chase_pac_man();
+	wander_pac = new wander_pac_man();
 	mainObject = new move_obj();
 
-	set_maze(mountainMaze, mountain_list);
+	set_maze(wallMaze, wall_list);
 
-	jewel = new Jewel*[mountain::rNum];
-	for (int i = 0; i < mountain::rNum; ++i) {
-		jewel[i] = new Jewel[mountain::cNum];
+	jewel = new Jewel*[wall::rNum];
+	for (int i = 0; i < wall::rNum; ++i) {
+		jewel[i] = new Jewel[wall::cNum];
 	}
-	for (int i = 0; i < mountain::rNum; ++i) {
-		for (int j = 0; j < mountain::cNum; ++j) {
-			jewel[i][j].set_pos(mountain_list[i][j].pos, mountain_list[i][j].maze_state);
+	for (int i = 0; i < wall::rNum; ++i) {
+		for (int j = 0; j < wall::cNum; ++j) {
+			jewel[i][j].set_pos(wall_list[i][j].pos, wall_list[i][j].maze_state);
 		}
 	}
 	//벽 경계면 초기화
@@ -153,7 +160,6 @@ int main(int argc, char** argv)
 	glutSpecialUpFunc(spKeyUpEvent);
 	glutPassiveMotionFunc(passiveMouseMotion);
 
-	//glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glPolygonMode(GL_FRONT, GL_FILL);
 	glPolygonMode(GL_BACK, GL_POINTS);
@@ -223,14 +229,14 @@ GLvoid drawScene()
 	}
 
 	glUniform3f(objColorLocation, 1.0f, 1.0f, 1.0f);
-	test_wander_pac->draw(modelLocation);
-	test_chase_pac->draw(modelLocation);
+	wander_pac->draw(modelLocation);
+	chase_pac->draw(modelLocation);
 
 	glBindTexture(GL_TEXTURE_2D, texture[0]);
-	for (int i = 0; i < mountain::cNum; ++i) {
-		for (int j = 0; j < mountain::rNum; ++j) {
+	for (int i = 0; i < wall::cNum; ++i) {
+		for (int j = 0; j < wall::rNum; ++j) {
 			glUniform3f(objColorLocation, 1.0f, 1.0f, 1.0f);
-			mountain_list[i][j].drawMaze(modelLocation);
+			wall_list[i][j].drawMaze(modelLocation);
 			glUniform3f(objColorLocation, 0.55f, 0.0f, 1.0f);
 			if (jewel[i][j].status_draw) {
 				jewel[i][j].draw(modelLocation);
@@ -269,12 +275,12 @@ GLvoid drawScene()
 		mainObject->draw(modelLocation);
 
 		glUniform3f(objColorLocation, 1.0f, 1.0f, 0.0f);
-		test_wander_pac->draw(modelLocation);
-		test_chase_pac->draw(modelLocation);
-		for (int i = 0; i < mountain::cNum; ++i) {
-			for (int j = 0; j < mountain::rNum; ++j) {
+		wander_pac->draw(modelLocation);
+		chase_pac->draw(modelLocation);
+		for (int i = 0; i < wall::cNum; ++i) {
+			for (int j = 0; j < wall::rNum; ++j) {
 				glUniform3f(objColorLocation, 0.0f, 0.0f, 0.0f);
-				mountain_list[i][j].drawMaze(modelLocation);
+				wall_list[i][j].drawMaze(modelLocation);
 				glUniform3f(objColorLocation, 0.55f, 0.0f, 1.0f);
 				if (jewel[i][j].status_draw) {
 					jewel[i][j].draw(modelLocation);
@@ -300,73 +306,74 @@ GLvoid TimeEvent(int value)
 		return;
 	}
 
-	mainObject->move(mountain_list, jewel);
+	mainObject->move(wall_list, jewel);
 
-	if (test_chase_pac->stun())
+	if (chase_pac->stun())
 	{
-		test_chase_pac->set_path(mountain_list, *mainObject);
-		test_chase_pac->move();
+		chase_pac->set_path(wall_list, *mainObject);
+		chase_pac->move();
 	}
 	
-	if (test_wander_pac->stun())
+	if (wander_pac->stun())
 	{
-		if (!test_wander_pac->set_path(mountain_list, *mainObject))
+		if (!wander_pac->set_path(wall_list, *mainObject))
 		{
-			if (test_wander_pac->get_miss_time() == 0)
-				test_wander_pac->set_path(mountain_list);
+			if (wander_pac->get_miss_time() == 0)
+				wander_pac->set_path(wall_list);
 			else
 			{
-				test_wander_pac->miss_time_gone();
+				wander_pac->miss_time_gone();
 			}
 		}
 		else
 		{
-			test_wander_pac->set_miss_time(100);
+			wander_pac->set_miss_time(100);
 		}
-		test_wander_pac->move();
+		wander_pac->move();
 	}
 
-	if (test_chase_pac->colide(mainObject->get_bb()) || test_wander_pac->colide(mainObject->get_bb()))
+	if (chase_pac->colide(mainObject->get_bb()) || wander_pac->colide(mainObject->get_bb()))
 	{
-		mountainMaze.ResetMaze();
-		mountain_list.clear();
+		PlaySound(TEXT("bgm/tilte_bgm.wav"), 0, SND_FILENAME | SND_ASYNC | SND_LOOP);
+
+		wallMaze.ResetMaze();
+		wall_list.clear();
 		mapFloor->reset();
 
-		mapFloor->set_floor(mountain::rNum, mountain::cNum);
-		mountainMaze.initialize((mountain::rNum + 1) / 2, (mountain::cNum + 1) / 2);
+		mapFloor->set_floor(wall::rNum, wall::cNum);
+		wallMaze.initialize((wall::rNum + 1) / 2, (wall::cNum + 1) / 2);
 		while (!maze::completeGenerate)
-			mountainMaze.generator();
+			wallMaze.generator();
 
-		mountain_list = std::vector<std::vector<mountain>>(mountain::cNum);
-		for (int i = 0; i < mountain::cNum; ++i)
+		wall_list = std::vector<std::vector<wall>>(wall::cNum);
+		for (int i = 0; i < wall::cNum; ++i)
 		{
-			for (int j = 0; j < mountain::rNum; ++j)
+			for (int j = 0; j < wall::rNum; ++j)
 			{
-				mountain_list[i].push_back(mountain(j, i));
+				wall_list[i].push_back(wall(j, i));
 			}
 		}
 
-		set_maze(mountainMaze, mountain_list);
+		set_maze(wallMaze, wall_list);
 		
 		mainObject->reset();
-		test_wander_pac->reset();
-		test_chase_pac->reset();
+		wander_pac->reset();
+		chase_pac->reset();
 
-		for (int i = 0; i < mountain::rNum; i++)
+		for (int i = 0; i < wall::rNum; i++)
 			delete[] jewel[i];
 		delete[] jewel;
 
-		jewel = new Jewel * [mountain::rNum];
-		for (int i = 0; i < mountain::rNum; ++i) {
-			jewel[i] = new Jewel[mountain::cNum];
+		jewel = new Jewel * [wall::rNum];
+		for (int i = 0; i < wall::rNum; ++i) {
+			jewel[i] = new Jewel[wall::cNum];
 		}
-		for (int i = 0; i < mountain::rNum; ++i) {
-			for (int j = 0; j < mountain::cNum; ++j) {
-				jewel[i][j].set_pos(mountain_list[i][j].pos, mountain_list[i][j].maze_state);
+		for (int i = 0; i < wall::rNum; ++i) {
+			for (int j = 0; j < wall::cNum; ++j) {
+				jewel[i][j].set_pos(wall_list[i][j].pos, wall_list[i][j].maze_state);
 			}
 		}
 		Jewel::score = 0;
-
 
 		STATE::quarter_view = true;
 	}
@@ -389,6 +396,8 @@ GLvoid KeyEvent(unsigned char key, int x, int y)
 		STATE::minnimap_On = (STATE::minnimap_On + 1) % 2;
 	}
 	else if (key == 's') {
+		if(STATE::quarter_view)
+			PlaySound(TEXT("bgm/game_bgm.wav"), 0, SND_FILENAME | SND_ASYNC | SND_LOOP);
 		STATE::quarter_view = false;
 	}
 }

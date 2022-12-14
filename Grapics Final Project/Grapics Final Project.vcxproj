@@ -28,7 +28,7 @@
     <ClInclude Include="move_obj.h" />
     <ClInclude Include="my_maze.h" />
     <ClInclude Include="make_Shader.h" />
-    <ClInclude Include="mountain.h" />
+    <ClInclude Include="wall.h" />
     <ClInclude Include="pac_man.h" />
     <ClInclude Include="read_Obj.h" />
     <ClInclude Include="state.h" />

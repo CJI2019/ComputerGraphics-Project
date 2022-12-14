@@ -16,8 +16,8 @@ public:
 	GLvoid set_row(const int& i_row) { row = i_row; }
 	GLvoid set_old_col(const int& i_col) { old_col = i_col; }
 	GLvoid set_old_row(const int& i_row) { old_row = i_row; }
-	GLvoid set_path(const std::vector<std::vector<mountain>>& m_list); //경로를 설정한다.
-	bool set_path(const std::vector<std::vector<mountain>>& m_list, const move_obj& object);
+	GLvoid set_path(const std::vector<std::vector<wall>>& w_list); //경로를 설정한다.
+	bool set_path(const std::vector<std::vector<wall>>& w_list, const move_obj& object);
 	GLvoid set_miss_time(const int& i_t) { miss_time = i_t; }
 	GLvoid set_direction();
 
@@ -28,6 +28,7 @@ public:
 	int get_miss_time() const { return miss_time; }
 
 	GLvoid print_time()const { std::cout << miss_time << std::endl; }
+	GLvoid reset();
 	GLvoid print_paths()
 	{
 		std::cout << paths.size() << std::endl;
@@ -43,6 +44,17 @@ wander_pac_man::wander_pac_man()
 {
 	pac_man();
 
+	std::uniform_int_distribution<int> dis(-1, 0);
+	direction[0] = dis(gen);
+	direction[1] = (direction[0] == 0) ? -1 : 0;
+	sight = 5;
+	look[0] = direction[0];
+	look[1] = direction[1];
+}
+
+GLvoid wander_pac_man::reset()
+{
+	pac_man::reset();
 	std::uniform_int_distribution<int> dis(-1, 0);
 	direction[0] = dis(gen);
 	direction[1] = (direction[0] == 0) ? -1 : 0;
@@ -185,7 +197,7 @@ GLvoid wander_pac_man::move()
 		transformation = glm::rotate(transformation, glm::radians(-90.0f), { 0.0f, 1.0f, 0.0f });
 }
 
-GLvoid wander_pac_man::set_path(const std::vector<std::vector<mountain>>& m_list)
+GLvoid wander_pac_man::set_path(const std::vector<std::vector<wall>>& w_list)
 {
 	int next_row = row + direction[0];
 	int next_col = col + direction[1];
@@ -204,10 +216,10 @@ GLvoid wander_pac_man::set_path(const std::vector<std::vector<mountain>>& m_list
 			int temp_dir = dis(gen);
 			if (temp_dir == 0) //직진
 			{
-				if (row == 0 || row == mountain::rNum - 1)
+				if (row == 0 || row == wall::rNum - 1)
 					continue;
 
-				if (!m_list[next_col][next_row].maze_state)
+				if (!w_list[next_col][next_row].maze_state)
 					continue;
 
 				paths = std::vector<int>{ next_col, next_row };
@@ -218,7 +230,7 @@ GLvoid wander_pac_man::set_path(const std::vector<std::vector<mountain>>& m_list
 				if (col == 0)
 					continue;
 
-				if (!m_list[col - 1][row].maze_state)
+				if (!w_list[col - 1][row].maze_state)
 					continue;
 
 				paths = std::vector<int>{ col - 1, row };
@@ -228,10 +240,10 @@ GLvoid wander_pac_man::set_path(const std::vector<std::vector<mountain>>& m_list
 			}
 			else if (temp_dir == 2) //아래로 방향을 바꾼다
 			{
-				if (col == mountain::cNum - 1)
+				if (col == wall::cNum - 1)
 					continue;
 
-				if (!m_list[col + 1][row].maze_state)
+				if (!w_list[col + 1][row].maze_state)
 					continue;
 
 				paths = std::vector<int>{ col + 1, row };
@@ -251,10 +263,10 @@ GLvoid wander_pac_man::set_path(const std::vector<std::vector<mountain>>& m_list
 			int temp_dir = dis(gen);
 			if (temp_dir == 0) //직진
 			{
-				if (col == 0 || col == mountain::cNum - 1)
+				if (col == 0 || col == wall::cNum - 1)
 					continue;
 
-				if (!m_list[next_col][next_row].maze_state)
+				if (!w_list[next_col][next_row].maze_state)
 					continue;
 
 				paths = std::vector<int>{ next_col, next_row };
@@ -265,7 +277,7 @@ GLvoid wander_pac_man::set_path(const std::vector<std::vector<mountain>>& m_list
 				if (row == 0)
 					continue;
 
-				if (!m_list[col][row - 1].maze_state)
+				if (!w_list[col][row - 1].maze_state)
 					continue;
 
 				paths = std::vector<int>{ col, row - 1 };
@@ -275,10 +287,10 @@ GLvoid wander_pac_man::set_path(const std::vector<std::vector<mountain>>& m_list
 			}
 			else if (temp_dir == 2) //오른쪽으로 방향을 바꾼다
 			{
-				if (row == mountain::rNum - 1)
+				if (row == wall::rNum - 1)
 					continue;
 
-				if (!m_list[col][row + 1].maze_state)
+				if (!w_list[col][row + 1].maze_state)
 					continue;
 
 				paths = std::vector<int>{ col, row + 1 };
@@ -292,9 +304,9 @@ GLvoid wander_pac_man::set_path(const std::vector<std::vector<mountain>>& m_list
 	old_row = row;
 }
 
-bool wander_pac_man::set_path(const std::vector<std::vector<mountain>>& m_list, const move_obj& object)
+bool wander_pac_man::set_path(const std::vector<std::vector<wall>>& w_list, const move_obj& object)
 {
-	paths = find_path(m_list, col, row, object.get_col(), object.get_row());
+	paths = find_path(w_list, col, row, object.get_col(), object.get_row());
 
 	if (look[0] == 0 && look[1] == -1) //위를보고 있음
 	{
@@ -306,7 +318,7 @@ bool wander_pac_man::set_path(const std::vector<std::vector<mountain>>& m_list, 
 			if (col - i == 0)
 				return false;
 
-			if (!m_list[col - i][row].maze_state)
+			if (!w_list[col - i][row].maze_state)
 				return false;
 		}
 	}
@@ -317,9 +329,9 @@ bool wander_pac_man::set_path(const std::vector<std::vector<mountain>>& m_list, 
 			if (object.get_col() == col + i && object.get_row() == row)
 				return true;
 
-			if (col + i == mountain::cNum - 1)
+			if (col + i == wall::cNum - 1)
 				return false;
-			if (!m_list[col + i][row].maze_state)
+			if (!w_list[col + i][row].maze_state)
 				return false;
 
 		}
@@ -334,7 +346,7 @@ bool wander_pac_man::set_path(const std::vector<std::vector<mountain>>& m_list, 
 
 			if (row - i == 0)
 				return false;
-			if (!m_list[col][row - i].maze_state)
+			if (!w_list[col][row - i].maze_state)
 				return false;
 		}
 	}
@@ -345,10 +357,10 @@ bool wander_pac_man::set_path(const std::vector<std::vector<mountain>>& m_list, 
 			if (object.get_col() == col && object.get_row() == row + 1)
 				return true;
 			
-			if (row + i == mountain::rNum - 1)
+			if (row + i == wall::rNum - 1)
 				return false;
 
-			if (!m_list[col][row + 1].maze_state)
+			if (!w_list[col][row + 1].maze_state)
 				return false;
 		}
 	}

@@ -32,7 +32,7 @@ public:
 
 bool is_path(const path path_matrix[][25], int dist_col, int dist_row);
 
-std::vector<int> find_path(const std::vector<std::vector<mountain>>& m_list, const int& start_col, const int& start_row, const int& target_col, const int& target_row)
+std::vector<int> find_path(const std::vector<std::vector<wall>>& w_list, const int& start_col, const int& start_row, const int& target_col, const int& target_row)
 {
 	path path_matrix[25][25];
 
@@ -40,7 +40,7 @@ std::vector<int> find_path(const std::vector<std::vector<mountain>>& m_list, con
 	{
 		for (int j = 0; j < 25; ++j)
 		{
-			path_matrix[i][j].set_wall(m_list[i][j].maze_state);
+			path_matrix[i][j].set_wall(w_list[i][j].maze_state);
 			path_matrix[i][j].set_col(i);
 			path_matrix[i][j].set_row(j);
 		}
