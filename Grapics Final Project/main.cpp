@@ -85,14 +85,16 @@ glm::vec3 light_color = glm::vec3(0.9f, 0.9f, 0.9f);
 //glm::mat4 light_trans = glm::mat4(1.0f);
 
 objRead hexahedron;
-
+objRead circle;
 glm::mat4 face[4];
 glm::mat4 modelceiling(1.0f);
 void wall_face_init();
 
+SNOW* head = new SNOW;
+GLboolean snow_on = false;
 int main(int argc, char** argv)
 {
-	PlaySound(TEXT("bgm/tilte_bgm.wav"), 0, SND_FILENAME | SND_ASYNC | SND_LOOP);
+	PlaySound(TEXT("bgm/tilte_bgm.wav"), 0, SND_FILENAME | SND_ASYNC);
 
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
@@ -146,6 +148,14 @@ int main(int argc, char** argv)
 	modelceiling = glm::scale(modelceiling, glm::vec3(0.05f, 1.0f, 0.05f));
 	modelceiling = glm::translate(modelceiling, glm::vec3(0.0f, -25.0f, 0.0f)); // 천장 모델변환
 
+	//snow
+	head->next = nullptr;
+	head->perv = nullptr;
+	for (int i = 0; i < 600; ++i) {
+		head->insert_list(head);
+	}
+
+
 	//세이더 읽어와서 세이더 프로그램 만들기
 	shaderID = make_shaderProgram();	//세이더 프로그램 만들기
 	initBuffer();
@@ -160,9 +170,9 @@ int main(int argc, char** argv)
 	glutSpecialUpFunc(spKeyUpEvent);
 	glutPassiveMotionFunc(passiveMouseMotion);
 
-	glEnable(GL_CULL_FACE);
-	glPolygonMode(GL_FRONT, GL_FILL);
-	glPolygonMode(GL_BACK, GL_POINTS);
+	//glEnable(GL_CULL_FACE);
+	//glPolygonMode(GL_FRONT, GL_FILL);
+	//glPolygonMode(GL_BACK, GL_POINTS);
 
 	modelLocation = glGetUniformLocation(shaderID, "modelTransform");
 	viewLocation = glGetUniformLocation(shaderID, "viewTransform");
@@ -245,6 +255,16 @@ GLvoid drawScene()
 	}
 	
 	//미니맵에서만 플레이어 객체 보임.
+	//-------------------------------------------------------------------------------------
+	//snow
+	if (snow_on) {
+		glBindVertexArray(circle.vao); //-- 위에서 바인드를 안했으면 해줘야함.
+		glUniform3f(objColorLocation, 1.0f, 1.0f, 1.0f);
+		for (SNOW* i = head->next; i != nullptr; i = i->next) {
+			i->draw(modelLocation, circle);
+		}
+	}
+	//-------------------------------------------------------------------------------------
 
 	if (STATE::quarter_view) {
 		glutSwapBuffers();
@@ -304,6 +324,23 @@ GLvoid TimeEvent(int value)
 		glutPostRedisplay();
 		glutTimerFunc(10, TimeEvent, 0);
 		return;
+	}
+
+	// 눈 업데이트
+	if (snow_on) {
+		for (SNOW* i = head; i->next != nullptr; i = i->next) {
+			SNOW* temp = i->next;
+
+			if (i->next->update(head, mainObject->get_pos())) {
+				delete temp;
+			}
+			else {
+				temp = nullptr;
+			}
+			if (i->next == nullptr) {
+				break;
+			}
+		}
 	}
 
 	mainObject->move(wall_list, jewel);
@@ -399,6 +436,9 @@ GLvoid KeyEvent(unsigned char key, int x, int y)
 		if(STATE::quarter_view)
 			PlaySound(TEXT("bgm/game_bgm.wav"), 0, SND_FILENAME | SND_ASYNC | SND_LOOP);
 		STATE::quarter_view = false;
+	}
+	else if (key == 'n') {
+		snow_on = (snow_on + 1) % 2;
 	}
 }
 
@@ -529,5 +569,19 @@ void initBuffer()
 	glBufferData(GL_ARRAY_BUFFER, hexahedron.outuv.size() * sizeof(GLfloat), hexahedron.outuv.data(), GL_STATIC_DRAW);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(2);
+
+	circle.loadObj_normalize_center("circle.obj");
+	glGenVertexArrays(1, &circle.vao);
+	glGenBuffers(2, circle.vbo);
+
+	glBindVertexArray(circle.vao);
+	glBindBuffer(GL_ARRAY_BUFFER, circle.vbo[0]);
+	glBufferData(GL_ARRAY_BUFFER, circle.outvertex.size() * sizeof(GLfloat), circle.outvertex.data(), GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, circle.vbo[1]);
+	glBufferData(GL_ARRAY_BUFFER, circle.outnormal.size() * sizeof(GLfloat), circle.outnormal.data(), GL_STATIC_DRAW);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(1);
 
 }

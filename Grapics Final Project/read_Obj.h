@@ -81,7 +81,7 @@ int objRead::loadObj_normalize_center(const char* filename)
 			unsigned int vertexIndex[3], uvIndex[3], normalIndex[3];
 			if (filename == "jewel.obj")
 			{
-				int matches = fscanf_s(objFile, "%d//%d %d//%d %d//%d", &vertexIndex[0], &normalIndex[0], &vertexIndex[1], &normalIndex[1], &vertexIndex[2], &normalIndex[2]);
+ 				int matches = fscanf_s(objFile, "%d//%d %d//%d %d//%d", &vertexIndex[0], &normalIndex[0], &vertexIndex[1], &normalIndex[1], &vertexIndex[2], &normalIndex[2]);
 				if (matches != 6) {
 					printf("File can't be read by our simple parser : ( Try exporting with other options\n");
 					return false;
@@ -93,11 +93,28 @@ int objRead::loadObj_normalize_center(const char* filename)
 				normalIndices.push_back(normalIndex[1]);
 				normalIndices.push_back(normalIndex[2]);
 			}
+			else if (filename == "circle.obj")
+			{
+				int matches = fscanf_s(objFile, "%d//%d %d//%d %d//%d", &vertexIndex[0], &normalIndex[0], &vertexIndex[1], &normalIndex[1], &vertexIndex[2], &normalIndex[2]);
+				if (matches != 6) {
+					printf("File can't be read by our simple parser : ( Try exporting with other options\n");
+					
+					return false;
+				}
+				vertexIndices.push_back(vertexIndex[0]);
+				vertexIndices.push_back(vertexIndex[1]);
+				vertexIndices.push_back(vertexIndex[2]);
+				normalIndices.push_back(normalIndex[0]);
+				normalIndices.push_back(normalIndex[1]);
+				normalIndices.push_back(normalIndex[2]);
+				//printf("%d / %d / %d\n", vertexIndex[0], vertexIndex[1], vertexIndex[2]);
+			}
 			else
 			{
 				int matches = fscanf_s(objFile, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &vertexIndex[0], &uvIndex[0], &normalIndex[0], &vertexIndex[1], &uvIndex[1], &normalIndex[1], &vertexIndex[2], &uvIndex[2], &normalIndex[2]);
 				if (matches != 9) {
 					printf("File can't be read by our simple parser : ( Try exporting with other options\n");
+					printf("filename : %s", filename);
 					return false;
 				}
 				vertexIndices.push_back(vertexIndex[0]);
@@ -147,6 +164,7 @@ int objRead::loadObj_normalize_center(const char* filename)
 		}
 		outvertex.push_back(temp);
 		
+
 		//임시로 컬러 값을 넣어본다.
 		//temp = { 0.55f, 0.0f, 1.0f, };
 		//color.push_back(temp);
