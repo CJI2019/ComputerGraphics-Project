@@ -1,11 +1,14 @@
-Release 폴더의 Grapics Final Project.exe를 실행하면 됩니다.
+1. Executable.zip 파일을 압축해제합니다. 
+2. Executable 폴더의 Grapics Final Project.exe를 실행하면 됩니다.
 
+진행방법 : 
 s키를 눌러 게임을 시작합니다.
 
 wasd 키로 이동합니다.
+마우스 드래그로 화면을 조작합니다.
 
 m키를 누르면 미니맵을 껏다가 킬 수 있습니다.
 
 n키를 누르면 눈내리기 효과를 껏다가 킬 수 있습니다.
 
-게임종료시 s 키를 눌러 다시 시작 가능합니다.
+사망시 s 키를 눌러 다시 시작 가능합니다.
